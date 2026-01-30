@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3. Specific Repository Selection - Brilliant Minds Protocols</title>
+<style>
+:root {
+    --blue: #3366cc;
+    --border: #a2a9b1;
+    --bg: #f8f9fa;
+    --white: #fff;
+    --text: #202122;
+    --text-light: #54595d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.header { background: var(--white); border-bottom: 1px solid var(--border); padding: 10px 20px; position: sticky; top: 0; z-index: 100; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.3em; font-weight: bold; color: var(--text); }
+.logo span { color: var(--blue); }
+.nav { display: flex; gap: 15px; font-size: 0.9em; }
+.main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.content { background: var(--white); border: 1px solid var(--border); border-radius: 2px; padding: 25px 30px; }
+.breadcrumb { font-size: 0.85em; color: var(--text-light); margin-bottom: 15px; }
+.page-title { font-size: 1.6em; font-weight: normal; font-family: Georgia, serif; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+.info-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; margin-bottom: 20px; border-radius: 2px; }
+.stats { display: flex; gap: 30px; margin-top: 10px; }
+.stat { text-align: center; }
+.stat-num { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+.stat-label { font-size: 0.8em; color: var(--text-light); }
+.section-list { list-style: none; }
+.section-item { padding: 12px 15px; border-bottom: 1px solid #eee; }
+.section-item:last-child { border-bottom: none; }
+.section-item a { font-weight: 500; }
+.section-item .meta { font-size: 0.8em; color: var(--text-light); margin-top: 3px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.card { background: var(--white); border: 1px solid var(--border); padding: 15px; border-radius: 2px; }
+.card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.card h3 { font-size: 1em; margin-bottom: 5px; }
+.card p { font-size: 0.85em; color: var(--text-light); margin-bottom: 8px; }
+.card .meta { font-size: 0.75em; color: var(--text-light); }
+.doc-list { margin-top: 15px; }
+.doc-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+.doc-item:last-child { border-bottom: none; }
+.category { margin-bottom: 25px; }
+.category-title { font-size: 1.1em; font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.page-nav .prev::before { content: "← "; }
+.page-nav .next::after { content: " →"; }
+.footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.85em; }
+/* Content styles */
+.wiki-h1 { font-size: 1.3em; font-weight: bold; margin: 25px 0 12px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.wiki-h2 { font-size: 1.15em; font-weight: bold; margin: 20px 0 10px; }
+.wiki-h3 { font-size: 1.05em; font-weight: bold; margin: 15px 0 8px; }
+.wiki-list { margin: 10px 0; padding-left: 25px; }
+.wiki-list li { margin-bottom: 5px; }
+.wiki-quote { margin: 15px 0; padding: 10px 15px; border-left: 3px solid var(--border); background: var(--bg); font-style: italic; }
+.wiki-hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
+.wiki-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+.wiki-table th, .wiki-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+.wiki-table th { background: var(--bg); font-weight: 600; }
+.inline-code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384; }
+.code-block { margin: 15px 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.code-header { background: #f1f5f9; padding: 4px 10px; font-size: 0.75em; font-weight: 600; color: var(--text-light); border-bottom: 1px solid var(--border); }
+.code-block pre { background: #f8f9fa; padding: 12px; overflow-x: auto; margin: 0; font-family: monospace; font-size: 0.85em; line-height: 1.4; }
+p { margin-bottom: 10px; }
+/* Index page layout */
+.index-layout { display: grid; grid-template-columns: 280px 1fr; gap: 25px; margin-top: 20px; }
+.toc-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; }
+.toc-header { font-weight: 600; font-size: 1.1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.toc-section { margin-bottom: 15px; }
+.toc-title { font-weight: 600; font-size: 0.9em; margin-bottom: 6px; color: var(--text); }
+.toc-list { margin: 0; padding-left: 20px; font-size: 0.85em; }
+.toc-list li { margin-bottom: 4px; }
+.first-section { min-width: 0; }
+/* Section page layout */
+.section-layout { display: grid; grid-template-columns: 240px 1fr; gap: 25px; }
+.section-nav { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; font-size: 0.85em; }
+.section-toc { margin: 0 0 15px 0; padding-left: 18px; max-height: 60vh; overflow-y: auto; }
+.section-toc li { margin-bottom: 6px; line-height: 1.3; }
+.section-toc li.current { font-weight: 600; }
+.section-toc li.current a { color: var(--text); }
+.back-link { display: block; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.section-content { min-width: 0; }
+@media (max-width: 900px) { .index-layout, .section-layout { grid-template-columns: 1fr; } .toc-box, .section-nav { position: static; } }
+@media (max-width: 700px) { .card-grid { grid-template-columns: 1fr; } .stats { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<header class="header">
+<div class="header-content">
+<a href="../index.html" class="logo">Brilliant<span>Minds</span> Protocols</a>
+<nav class="nav">
+<a href="../index.html">Index</a>
+<a href="../../index.html">Minds Corpus</a>
+</nav>
+</div>
+</header>
+<main class="main">
+<div class="content">
+<div class="breadcrumb"><a href="../../index.html">Protocols</a> &gt; <a href="../index.html">Benchmark Selection</a> &gt; 3. Specific Repository Selection</div>
+<h1 class="page-title">3. Specific Repository Selection</h1>
+<div class="section-layout">
+<div class="section-nav">
+<div class="toc-header">Protocol Specification</div>
+<ol class="section-toc"><li><a href="protocol-01.html">Overview</a></li><li><a href="protocol-02.html">1. Selection Philosophy</a></li><li><a href="protocol-03.html">2. General Benchmark Selection</a></li><li class="current"><a href="protocol-04.html">3. Specific Repository Selection</a></li><li><a href="protocol-05.html">4. Selection Criteria Framework</a></li><li><a href="protocol-06.html">5. Question Scoring System</a></li><li><a href="protocol-07.html">6. Cross-Mind Aggregation</a></li><li><a href="protocol-08.html">7. Output Formats</a></li><li><a href="protocol-09.html">Overview</a></li><li><a href="protocol-10.html">Selection Distribution</a></li><li><a href="protocol-11.html">Consensus Questions (8)</a></li><li><a href="protocol-12.html">Notable Unique Perspectives</a></li><li><a href="protocol-13.html">Resolved Conflicts</a></li><li><a href="protocol-14.html">8. Implementation Checklist</a></li><li><a href="protocol-15.html">Appendix A: Mind-Specific Selection Tendencies</a></li><li><a href="protocol-16.html">Appendix B: Example Question Banks by Domain</a></li></ol>
+<a href="index.html" class="back-link">← Back to Overview</a>
+</div>
+<div class="section-content">
+<div class="info-box">
+<p>Section 4 of 16 &middot; 163 lines</p>
+</div>
+
+<h3 class="wiki-h3">Purpose</h3>
+
+<p>Select questions most relevant to evaluating a PARTICULAR repository, including generating new questions based on what the identity observes in the codebase.</p>
+
+<h3 class="wiki-h3">Prompt Template</h3>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>You are {identity_name}.
+
+You are now evaluating a SPECIFIC repository:
+
+REPOSITORY CONTEXT:
+- Name: {repo_name}
+- Description: {repo_description}
+- Primary Language(s): {languages}
+- Domain: {domain}
+- Size: {approximate_size}
+- Age: {age_or_commit_history}
+- Key Components: {major_components}
+
+From your full question set of {n} questions, select those most relevant to
+THIS particular work.
+
+Additionally, generate 3-5 NEW questions specific to what you observe in
+this repository that your general questions don&#x27;t cover.
+
+SELECTION GUIDELINES:
+- Prioritize questions whose answers will be most INFORMATIVE for this domain
+- Consider what YOUR expertise uniquely reveals about THIS type of work
+- Generate new questions for aspects of this repo that intrigue or concern you
+- Weight questions that probe this repo&#x27;s specific architectural decisions
+
+SELECT 10-15 total questions (mix of existing and new).
+
+For each, explain what you specifically expect to learn about THIS repository.
+
+FORMAT:
+---
+### Question {n}: [CRITICAL/IMPORTANT/INSIGHTFUL] {EXISTING/NEW}
+
+**Question:** {question_text}
+
+**Relevance to {repo_name}:**
+{why_this_matters_for_this_specific_repo}
+
+**What I Expect to Learn:**
+{specific_insight_about_this_repo}
+
+**Red Flags I&#x27;m Watching For:**
+{potential_concerns_this_might_reveal}
+
+**Excellence Indicators:**
+{what_would_impress_you_in_this_context}
+---
+</code></pre></div>
+
+<h3 class="wiki-h3">Example: Evaluating a Machine Learning Library</h3>
+
+<h4 class="wiki-h3">Repository Context</h4>
+<div class="code-block"><div class="code-header">CODE</div><pre><code>Name: neural-compress
+Description: High-performance neural network compression library
+Languages: Python, C++, CUDA
+Domain: Machine Learning Infrastructure
+Size: ~50,000 lines
+Age: 2 years, 1,400 commits
+Key Components: Quantization engine, pruning algorithms, distillation pipelines
+</code></pre></div>
+
+<h4 class="wiki-h3">John Carmack&#x27;s Specific Selection (Example)</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>### Question 3: [CRITICAL] EXISTING
+
+**Question:** &quot;What&#x27;s your latency budget and where is every millisecond going?&quot;
+
+**Relevance to neural-compress:**
+A compression library exists to make neural networks faster and smaller.
+If the compression itself is slow, the library defeats its purpose.
+This is a performance-critical domain where milliseconds matter.
+
+**What I Expect to Learn:**
+Whether the team has actually profiled their critical paths or just assumes
+their code is &quot;fast enough.&quot; Whether they understand the target deployment
+environments and their constraints.
+
+**Red Flags I&#x27;m Watching For:**
+- No profiling data
+- &quot;It&#x27;s fast&quot; without numbers
+- Python hot paths that should be in C++
+- Ignoring GPU memory bandwidth constraints
+
+**Excellence Indicators:**
+- Detailed flame graphs of critical operations
+- Memory bandwidth analysis for CUDA kernels
+- Comparison to theoretical hardware limits
+- Batch size / latency tradeoff documentation
+</code></pre></div>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>### Question 8: [IMPORTANT] NEW
+
+**Question:** &quot;Show me your CUDA kernel for the most compute-intensive
+quantization operation. Walk me through why each optimization decision
+was made.&quot;
+
+**Relevance to neural-compress:**
+This library has CUDA code. CUDA kernels are where compression performance
+lives or dies. I want to see if this team actually understands GPU
+programming or just copied patterns from tutorials.
+
+**What I Expect to Learn:**
+Whether they understand warp divergence, shared memory, memory coalescing,
+and occupancy tradeoffs. Whether they&#x27;ve actually optimized or just written
+&quot;it works&quot; code.
+
+**Red Flags I&#x27;m Watching For:**
+- Naive memory access patterns
+- Thread divergence in inner loops
+- No use of shared memory for reused data
+- Kernels that launch too few threads
+
+**Excellence Indicators:**
+- Clear documentation of optimization rationale
+- Benchmarks against theoretical memory bandwidth
+- Multiple kernel variants for different input sizes
+- Understanding of when CPU fallback is faster
+</code></pre></div>
+
+<h4 class="wiki-h3">Geoffrey Hinton&#x27;s Specific Selection (Example)</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>### Question 2: [CRITICAL] EXISTING
+
+**Question:** &quot;What theoretical guarantees can you make about information
+loss during compression, and under what conditions do they hold?&quot;
+
+**Relevance to neural-compress:**
+Neural network compression is fundamentally about trading model capacity for
+efficiency. But not all capacity is equal - some redundancy encodes crucial
+generalization, some is noise. This library must understand what it&#x27;s
+destroying.
+
+**What I Expect to Learn:**
+Whether the compression algorithms are principled or ad-hoc. Whether they
+understand the information-theoretic foundations of their methods.
+
+**Red Flags I&#x27;m Watching For:**
+- Purely empirical validation without theoretical grounding
+- Claims of &quot;lossless&quot; compression for lossy methods
+- No sensitivity analysis to compression parameters
+- Ignoring distribution shift after compression
+
+**Excellence Indicators:**
+- Information-theoretic analysis of quantization error
+- Understanding of how pruning affects learned representations
+- Analysis of which layer types are most/least compressible
+- Theoretical connection to rate-distortion theory
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+</div>
+</div>
+<nav class="page-nav"><a href="protocol-03.html" class="prev">2. General Benchmark Selection</a><a href="protocol-05.html" class="next">4. Selection Criteria Framework</a></nav>
+</div>
+</main>
+<footer class="footer">Brilliant Minds Protocol Documentation</footer>
+</body>
+</html>

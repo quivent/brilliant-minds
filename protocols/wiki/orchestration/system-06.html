@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5. Progress Tracking System - Brilliant Minds Protocols</title>
+<style>
+:root {
+    --blue: #3366cc;
+    --border: #a2a9b1;
+    --bg: #f8f9fa;
+    --white: #fff;
+    --text: #202122;
+    --text-light: #54595d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.header { background: var(--white); border-bottom: 1px solid var(--border); padding: 10px 20px; position: sticky; top: 0; z-index: 100; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.3em; font-weight: bold; color: var(--text); }
+.logo span { color: var(--blue); }
+.nav { display: flex; gap: 15px; font-size: 0.9em; }
+.main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.content { background: var(--white); border: 1px solid var(--border); border-radius: 2px; padding: 25px 30px; }
+.breadcrumb { font-size: 0.85em; color: var(--text-light); margin-bottom: 15px; }
+.page-title { font-size: 1.6em; font-weight: normal; font-family: Georgia, serif; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+.info-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; margin-bottom: 20px; border-radius: 2px; }
+.stats { display: flex; gap: 30px; margin-top: 10px; }
+.stat { text-align: center; }
+.stat-num { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+.stat-label { font-size: 0.8em; color: var(--text-light); }
+.section-list { list-style: none; }
+.section-item { padding: 12px 15px; border-bottom: 1px solid #eee; }
+.section-item:last-child { border-bottom: none; }
+.section-item a { font-weight: 500; }
+.section-item .meta { font-size: 0.8em; color: var(--text-light); margin-top: 3px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.card { background: var(--white); border: 1px solid var(--border); padding: 15px; border-radius: 2px; }
+.card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.card h3 { font-size: 1em; margin-bottom: 5px; }
+.card p { font-size: 0.85em; color: var(--text-light); margin-bottom: 8px; }
+.card .meta { font-size: 0.75em; color: var(--text-light); }
+.doc-list { margin-top: 15px; }
+.doc-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+.doc-item:last-child { border-bottom: none; }
+.category { margin-bottom: 25px; }
+.category-title { font-size: 1.1em; font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.page-nav .prev::before { content: "← "; }
+.page-nav .next::after { content: " →"; }
+.footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.85em; }
+/* Content styles */
+.wiki-h1 { font-size: 1.3em; font-weight: bold; margin: 25px 0 12px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.wiki-h2 { font-size: 1.15em; font-weight: bold; margin: 20px 0 10px; }
+.wiki-h3 { font-size: 1.05em; font-weight: bold; margin: 15px 0 8px; }
+.wiki-list { margin: 10px 0; padding-left: 25px; }
+.wiki-list li { margin-bottom: 5px; }
+.wiki-quote { margin: 15px 0; padding: 10px 15px; border-left: 3px solid var(--border); background: var(--bg); font-style: italic; }
+.wiki-hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
+.wiki-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+.wiki-table th, .wiki-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+.wiki-table th { background: var(--bg); font-weight: 600; }
+.inline-code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384; }
+.code-block { margin: 15px 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.code-header { background: #f1f5f9; padding: 4px 10px; font-size: 0.75em; font-weight: 600; color: var(--text-light); border-bottom: 1px solid var(--border); }
+.code-block pre { background: #f8f9fa; padding: 12px; overflow-x: auto; margin: 0; font-family: monospace; font-size: 0.85em; line-height: 1.4; }
+p { margin-bottom: 10px; }
+/* Index page layout */
+.index-layout { display: grid; grid-template-columns: 280px 1fr; gap: 25px; margin-top: 20px; }
+.toc-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; }
+.toc-header { font-weight: 600; font-size: 1.1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.toc-section { margin-bottom: 15px; }
+.toc-title { font-weight: 600; font-size: 0.9em; margin-bottom: 6px; color: var(--text); }
+.toc-list { margin: 0; padding-left: 20px; font-size: 0.85em; }
+.toc-list li { margin-bottom: 4px; }
+.first-section { min-width: 0; }
+/* Section page layout */
+.section-layout { display: grid; grid-template-columns: 240px 1fr; gap: 25px; }
+.section-nav { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; font-size: 0.85em; }
+.section-toc { margin: 0 0 15px 0; padding-left: 18px; max-height: 60vh; overflow-y: auto; }
+.section-toc li { margin-bottom: 6px; line-height: 1.3; }
+.section-toc li.current { font-weight: 600; }
+.section-toc li.current a { color: var(--text); }
+.back-link { display: block; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.section-content { min-width: 0; }
+@media (max-width: 900px) { .index-layout, .section-layout { grid-template-columns: 1fr; } .toc-box, .section-nav { position: static; } }
+@media (max-width: 700px) { .card-grid { grid-template-columns: 1fr; } .stats { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<header class="header">
+<div class="header-content">
+<a href="../index.html" class="logo">Brilliant<span>Minds</span> Protocols</a>
+<nav class="nav">
+<a href="../index.html">Index</a>
+<a href="../../index.html">Minds Corpus</a>
+</nav>
+</div>
+</header>
+<main class="main">
+<div class="content">
+<div class="breadcrumb"><a href="../../index.html">Protocols</a> &gt; <a href="../index.html">Orchestration System</a> &gt; 5. Progress Tracking System</div>
+<h1 class="page-title">5. Progress Tracking System</h1>
+<div class="section-layout">
+<div class="section-nav">
+<div class="toc-header">System Architecture</div>
+<ol class="section-toc"><li><a href="system-01.html">System Architecture Overview</a></li><li><a href="system-02.html">1. Pipeline Architecture</a></li><li><a href="system-03.html">2. Core Data Structures</a></li><li><a href="system-04.html">3. Session Management</a></li><li><a href="system-05.html">4. API Design</a></li><li class="current"><a href="system-06.html">5. Progress Tracking System</a></li><li><a href="system-07.html">6. Multi-Mind Coordination</a></li><li><a href="system-08.html">7. Persistence Layer</a></li><li><a href="system-09.html">Summary</a></li><li><a href="system-10.html">Executive Summary</a></li><li><a href="system-11.html">Key Findings</a></li><li><a href="system-12.html">Detailed Evaluations</a></li><li><a href="system-13.html">8. Configuration System</a></li><li><a href="system-14.html">9. Error Handling</a></li><li><a href="system-15.html">10. Integration Hooks</a></li><li><a href="system-16.html">11. Usage Examples</a></li><li><a href="system-17.html">12. System Diagram Summary</a></li><li><a href="system-18.html">Appendix A: File Structure</a></li><li><a href="system-19.html">Appendix B: Glossary</a></li></ol>
+<a href="index.html" class="back-link">← Back to Overview</a>
+</div>
+<div class="section-content">
+<div class="info-box">
+<p>Section 6 of 19 &middot; 256 lines</p>
+</div>
+
+<h3 class="wiki-h3">5.1 Progress Model</h3>
+
+<div class="code-block"><div class="code-header">PYTHON</div><pre><code>@dataclass
+class PhaseProgress:
+    &quot;&quot;&quot;Progress tracking for a single phase&quot;&quot;&quot;
+    phase_name: str
+    status: str                              # &quot;pending&quot;, &quot;active&quot;, &quot;completed&quot;, &quot;error&quot;
+    progress: float                          # 0-100
+    started_at: Optional[datetime]
+    completed_at: Optional[datetime]
+
+    # Stage breakdown
+    stages: List[&#x27;StageProgress&#x27;]
+    current_stage: Optional[str]
+
+    # Metrics
+    items_total: Optional[int]
+    items_completed: int = 0
+
+    # Messages
+    current_activity: str = &quot;&quot;
+    last_message: str = &quot;&quot;
+    errors: List[str] = field(default_factory=list)
+
+@dataclass
+class StageProgress:
+    &quot;&quot;&quot;Progress for a stage within a phase&quot;&quot;&quot;
+    stage_name: str
+    weight: float                            # Contribution to phase progress
+    progress: float                          # 0-100
+    status: str
+
+@dataclass
+class PipelineProgress:
+    &quot;&quot;&quot;Overall pipeline progress&quot;&quot;&quot;
+    session_id: str
+    overall_progress: float                  # 0-100
+    current_phase: str
+
+    phases: Dict[str, PhaseProgress]
+
+    # Timing
+    started_at: datetime
+    estimated_completion: Optional[datetime]
+    elapsed_seconds: float
+
+    # Quality metrics
+    current_quality: Optional[float]
+    quality_trend: List[float]               # History of quality readings
+</code></pre></div>
+
+<h3 class="wiki-h3">5.2 Progress Display Specifications</h3>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>IDENTITY RESTORATION PROGRESS
+=============================
+
+Mind: Andrej Karpathy
+Stage: EXPERTISE_ABSORBED (4/6)
+
+[################............] 62%
+
+Current Activity: Absorbing communication patterns...
+
+Stages:
+  [x] Initial parsing                    100%
+  [x] Core identity absorption           100%
+  [x] Biographical integration           100%
+  [x] Expertise calibration              100%
+  [ ] Voice pattern learning              45%
+  [ ] Verification testing                 0%
+
+Quality Metrics:
+  Core Identity Clarity:    0.92
+  Biographical Accuracy:    0.88
+  Expertise Calibration:    0.85
+  Voice Authenticity:       0.67
+  Verification Score:       ---
+
+Overall Absorption Quality: 0.83
+
+Time Elapsed: 2m 34s
+Est. Remaining: 1m 45s
+</code></pre></div>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>QUESTION GENERATION PROGRESS
+============================
+
+Mind: Andrej Karpathy
+Target: mercenary-cli
+
+[####################........] 67%
+
+Questions Generated: 20/30
+
+By Category:
+  Architecture:     [####....] 4/6
+  Implementation:   [######..] 6/8
+  Philosophy:       [####....] 3/5
+  Tradeoffs:        [##......] 2/6
+  Patterns:         [#####...] 5/5
+
+By Difficulty:
+  Foundational:     5 questions
+  Intermediate:     8 questions
+  Advanced:         5 questions
+  Expert:           2 questions
+
+Current: Generating tradeoff question #3...
+</code></pre></div>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>REPOSITORY EVALUATION PROGRESS
+==============================
+
+Mind: Andrej Karpathy
+Repository: mercenary-cli
+Benchmark: COMPREHENSIVE (8 questions)
+
+[########################....] 75%
+
+Questions Evaluated: 6/8
+
+Scores So Far:
+  Q1 (Architecture):    0.85  [Strong Evidence]
+  Q2 (Implementation):  0.72  [Adequate Evidence]
+  Q3 (Philosophy):      0.91  [Strong Evidence]
+  Q4 (Tradeoffs):       0.68  [Adequate Evidence]
+  Q5 (Patterns):        0.78  [Adequate Evidence]
+  Q6 (Testing):         0.55  [Weak Evidence]
+  Q7 (Performance):     --- evaluating ---
+  Q8 (Security):        --- pending ---
+
+Running Total: 0.75 (weighted)
+
+Current: Evaluating Q7 - Performance optimization strategies...
+</code></pre></div>
+
+<h3 class="wiki-h3">5.3 Progress Tracker Implementation</h3>
+
+<div class="code-block"><div class="code-header">PYTHON</div><pre><code>class ProgressTracker:
+    &quot;&quot;&quot;Real-time progress tracking with event emission&quot;&quot;&quot;
+
+    def __init__(self, session: BrilliantMindSession):
+        self.session = session
+        self._listeners: List[Callable] = []
+        self._phase_progress: Dict[str, PhaseProgress] = {}
+        self._initialize_phases()
+
+    def _initialize_phases(self):
+        &quot;&quot;&quot;Set up progress tracking for all phases&quot;&quot;&quot;
+        self._phase_progress = {
+            &#x27;identity_restoration&#x27;: PhaseProgress(
+                phase_name=&#x27;Identity Restoration&#x27;,
+                status=&#x27;pending&#x27;,
+                progress=0.0,
+                stages=[
+                    StageProgress(&#x27;parsing&#x27;, 0.10, 0.0, &#x27;pending&#x27;),
+                    StageProgress(&#x27;core_identity&#x27;, 0.20, 0.0, &#x27;pending&#x27;),
+                    StageProgress(&#x27;biography&#x27;, 0.15, 0.0, &#x27;pending&#x27;),
+                    StageProgress(&#x27;expertise&#x27;, 0.20, 0.0, &#x27;pending&#x27;),
+                    StageProgress(&#x27;voice&#x27;, 0.20, 0.0, &#x27;pending&#x27;),
+                    StageProgress(&#x27;verification&#x27;, 0.15, 0.0, &#x27;pending&#x27;),
+                ]
+            ),
+            &#x27;question_generation&#x27;: PhaseProgress(
+                phase_name=&#x27;Question Generation&#x27;,
+                status=&#x27;pending&#x27;,
+                progress=0.0,
+                stages=[
+                    StageProgress(&#x27;project_analysis&#x27;, 0.20, 0.0, &#x27;pending&#x27;),
+                    StageProgress(&#x27;question_ideation&#x27;, 0.50, 0.0, &#x27;pending&#x27;),
+                    StageProgress(&#x27;question_refinement&#x27;, 0.30, 0.0, &#x27;pending&#x27;),
+                ]
+            ),
+            &#x27;benchmark_selection&#x27;: PhaseProgress(
+                phase_name=&#x27;Benchmark Selection&#x27;,
+                status=&#x27;pending&#x27;,
+                progress=0.0,
+                stages=[
+                    StageProgress(&#x27;coverage_analysis&#x27;, 0.30, 0.0, &#x27;pending&#x27;),
+                    StageProgress(&#x27;selection&#x27;, 0.50, 0.0, &#x27;pending&#x27;),
+                    StageProgress(&#x27;validation&#x27;, 0.20, 0.0, &#x27;pending&#x27;),
+                ]
+            ),
+            &#x27;repository_evaluation&#x27;: PhaseProgress(
+                phase_name=&#x27;Repository Evaluation&#x27;,
+                status=&#x27;pending&#x27;,
+                progress=0.0,
+                stages=[]  # Dynamic based on question count
+            ),
+        }
+
+    def subscribe(self, listener: Callable[[PipelineProgress], None]):
+        &quot;&quot;&quot;Subscribe to progress updates&quot;&quot;&quot;
+        self._listeners.append(listener)
+
+    def update_phase(
+        self,
+        phase: str,
+        progress: float,
+        stage: Optional[str] = None,
+        message: str = &quot;&quot;
+    ):
+        &quot;&quot;&quot;Update progress for a phase&quot;&quot;&quot;
+        if phase in self._phase_progress:
+            pp = self._phase_progress[phase]
+            pp.progress = progress
+            pp.current_activity = message
+            if stage:
+                pp.current_stage = stage
+            self._emit_progress()
+
+    def _emit_progress(self):
+        &quot;&quot;&quot;Emit current progress to all listeners&quot;&quot;&quot;
+        progress = self._calculate_pipeline_progress()
+        for listener in self._listeners:
+            listener(progress)
+
+    def _calculate_pipeline_progress(self) -&gt; PipelineProgress:
+        &quot;&quot;&quot;Calculate overall pipeline progress&quot;&quot;&quot;
+        phase_weights = {
+            &#x27;identity_restoration&#x27;: 0.30,
+            &#x27;question_generation&#x27;: 0.25,
+            &#x27;benchmark_selection&#x27;: 0.10,
+            &#x27;repository_evaluation&#x27;: 0.35,
+        }
+
+        overall = sum(
+            self._phase_progress[phase].progress * weight
+            for phase, weight in phase_weights.items()
+        )
+
+        current_phase = next(
+            (phase for phase, pp in self._phase_progress.items()
+             if pp.status == &#x27;active&#x27;),
+            &#x27;completed&#x27;
+        )
+
+        return PipelineProgress(
+            session_id=self.session.session_id,
+            overall_progress=overall,
+            current_phase=current_phase,
+            phases=self._phase_progress,
+            started_at=self.session.created_at,
+            estimated_completion=self._estimate_completion(),
+            elapsed_seconds=(datetime.now() - self.session.created_at).total_seconds()
+        )
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+</div>
+</div>
+<nav class="page-nav"><a href="system-05.html" class="prev">4. API Design</a><a href="system-07.html" class="next">6. Multi-Mind Coordination</a></nav>
+</div>
+</main>
+<footer class="footer">Brilliant Minds Protocol Documentation</footer>
+</body>
+</html>

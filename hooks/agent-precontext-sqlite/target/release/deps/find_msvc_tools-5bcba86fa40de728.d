@@ -1,0 +1,9 @@
+/Users/joshkornreich/.claude/hooks/agent-precontext-sqlite/./target/release/deps/find_msvc_tools-5bcba86fa40de728.d: /Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/lib.rs /Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/find_tools.rs /Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/tool.rs
+
+/Users/joshkornreich/.claude/hooks/agent-precontext-sqlite/./target/release/deps/libfind_msvc_tools-5bcba86fa40de728.rlib: /Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/lib.rs /Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/find_tools.rs /Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/tool.rs
+
+/Users/joshkornreich/.claude/hooks/agent-precontext-sqlite/./target/release/deps/libfind_msvc_tools-5bcba86fa40de728.rmeta: /Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/lib.rs /Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/find_tools.rs /Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/tool.rs
+
+/Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/lib.rs:
+/Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/find_tools.rs:
+/Users/joshkornreich/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.8/src/tool.rs:

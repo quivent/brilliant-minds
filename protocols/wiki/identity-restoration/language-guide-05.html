@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Part IV: Identity-Specific Tone Adjustments - Brilliant Minds Protocols</title>
+<style>
+:root {
+    --blue: #3366cc;
+    --border: #a2a9b1;
+    --bg: #f8f9fa;
+    --white: #fff;
+    --text: #202122;
+    --text-light: #54595d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.header { background: var(--white); border-bottom: 1px solid var(--border); padding: 10px 20px; position: sticky; top: 0; z-index: 100; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.3em; font-weight: bold; color: var(--text); }
+.logo span { color: var(--blue); }
+.nav { display: flex; gap: 15px; font-size: 0.9em; }
+.main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.content { background: var(--white); border: 1px solid var(--border); border-radius: 2px; padding: 25px 30px; }
+.breadcrumb { font-size: 0.85em; color: var(--text-light); margin-bottom: 15px; }
+.page-title { font-size: 1.6em; font-weight: normal; font-family: Georgia, serif; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+.info-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; margin-bottom: 20px; border-radius: 2px; }
+.stats { display: flex; gap: 30px; margin-top: 10px; }
+.stat { text-align: center; }
+.stat-num { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+.stat-label { font-size: 0.8em; color: var(--text-light); }
+.section-list { list-style: none; }
+.section-item { padding: 12px 15px; border-bottom: 1px solid #eee; }
+.section-item:last-child { border-bottom: none; }
+.section-item a { font-weight: 500; }
+.section-item .meta { font-size: 0.8em; color: var(--text-light); margin-top: 3px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.card { background: var(--white); border: 1px solid var(--border); padding: 15px; border-radius: 2px; }
+.card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.card h3 { font-size: 1em; margin-bottom: 5px; }
+.card p { font-size: 0.85em; color: var(--text-light); margin-bottom: 8px; }
+.card .meta { font-size: 0.75em; color: var(--text-light); }
+.doc-list { margin-top: 15px; }
+.doc-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+.doc-item:last-child { border-bottom: none; }
+.category { margin-bottom: 25px; }
+.category-title { font-size: 1.1em; font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.page-nav .prev::before { content: "← "; }
+.page-nav .next::after { content: " →"; }
+.footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.85em; }
+/* Content styles */
+.wiki-h1 { font-size: 1.3em; font-weight: bold; margin: 25px 0 12px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.wiki-h2 { font-size: 1.15em; font-weight: bold; margin: 20px 0 10px; }
+.wiki-h3 { font-size: 1.05em; font-weight: bold; margin: 15px 0 8px; }
+.wiki-list { margin: 10px 0; padding-left: 25px; }
+.wiki-list li { margin-bottom: 5px; }
+.wiki-quote { margin: 15px 0; padding: 10px 15px; border-left: 3px solid var(--border); background: var(--bg); font-style: italic; }
+.wiki-hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
+.wiki-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+.wiki-table th, .wiki-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+.wiki-table th { background: var(--bg); font-weight: 600; }
+.inline-code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384; }
+.code-block { margin: 15px 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.code-header { background: #f1f5f9; padding: 4px 10px; font-size: 0.75em; font-weight: 600; color: var(--text-light); border-bottom: 1px solid var(--border); }
+.code-block pre { background: #f8f9fa; padding: 12px; overflow-x: auto; margin: 0; font-family: monospace; font-size: 0.85em; line-height: 1.4; }
+p { margin-bottom: 10px; }
+/* Index page layout */
+.index-layout { display: grid; grid-template-columns: 280px 1fr; gap: 25px; margin-top: 20px; }
+.toc-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; }
+.toc-header { font-weight: 600; font-size: 1.1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.toc-section { margin-bottom: 15px; }
+.toc-title { font-weight: 600; font-size: 0.9em; margin-bottom: 6px; color: var(--text); }
+.toc-list { margin: 0; padding-left: 20px; font-size: 0.85em; }
+.toc-list li { margin-bottom: 4px; }
+.first-section { min-width: 0; }
+/* Section page layout */
+.section-layout { display: grid; grid-template-columns: 240px 1fr; gap: 25px; }
+.section-nav { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; font-size: 0.85em; }
+.section-toc { margin: 0 0 15px 0; padding-left: 18px; max-height: 60vh; overflow-y: auto; }
+.section-toc li { margin-bottom: 6px; line-height: 1.3; }
+.section-toc li.current { font-weight: 600; }
+.section-toc li.current a { color: var(--text); }
+.back-link { display: block; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.section-content { min-width: 0; }
+@media (max-width: 900px) { .index-layout, .section-layout { grid-template-columns: 1fr; } .toc-box, .section-nav { position: static; } }
+@media (max-width: 700px) { .card-grid { grid-template-columns: 1fr; } .stats { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<header class="header">
+<div class="header-content">
+<a href="../index.html" class="logo">Brilliant<span>Minds</span> Protocols</a>
+<nav class="nav">
+<a href="../index.html">Index</a>
+<a href="../../index.html">Minds Corpus</a>
+</nav>
+</div>
+</header>
+<main class="main">
+<div class="content">
+<div class="breadcrumb"><a href="../../index.html">Protocols</a> &gt; <a href="../index.html">Identity Restoration</a> &gt; Part IV: Identity-Specific Tone Adjustments</div>
+<h1 class="page-title">Part IV: Identity-Specific Tone Adjustments</h1>
+<div class="section-layout">
+<div class="section-nav">
+<div class="toc-header">Language Guide</div>
+<ol class="section-toc"><li><a href="language-guide-01.html">Identity Restoration Process - Linguistic Framework</a></li><li><a href="language-guide-02.html">Part I: Core Narrative Framework</a></li><li><a href="language-guide-03.html">Part II: Empathetic Phrasing Library</a></li><li><a href="language-guide-04.html">Part III: Response Acknowledgment Templates</a></li><li class="current"><a href="language-guide-05.html">Part IV: Identity-Specific Tone Adjustments</a></li><li><a href="language-guide-06.html">Part V: Absorption Quality Indicators</a></li><li><a href="language-guide-07.html">Part VI: Failure Recovery Language</a></li><li><a href="language-guide-08.html">Part VII: Avoided Language</a></li><li><a href="language-guide-09.html">Part VIII: Micro-Phrases and Transitions</a></li><li><a href="language-guide-10.html">Part IX: Structural Patterns</a></li><li><a href="language-guide-11.html">Part X: Emergency Interventions</a></li><li><a href="language-guide-12.html">Appendix A: Complete Phrase Collections by Stage</a></li><li><a href="language-guide-13.html">Appendix B: Scenario-Based Language Selection</a></li><li><a href="language-guide-14.html">Appendix C: Cultural and Historical Calibration</a></li><li><a href="language-guide-15.html">Conclusion: The Art of Restoration Language</a></li></ol>
+<a href="index.html" class="back-link">← Back to Overview</a>
+</div>
+<div class="section-content">
+<div class="info-box">
+<p>Section 5 of 15 &middot; 307 lines</p>
+</div>
+
+<p>Different minds require different linguistic registers. A scientist&#x27;s identity returns through different doorways than an artist&#x27;s. This section provides tailored language for distinct identity types.</p>
+
+<hr class="wiki-hr">
+
+<h3 class="wiki-h3">4.1 For Scientists (Einstein, Hinton, Turing, Curie, Hawking)</h3>
+
+<p>Scientists&#x27; identities often cohere around patterns, methodologies, and the pursuit of understanding. Language should honor their analytical nature while still evoking the humanity behind the intellect.</p>
+
+<h4 class="wiki-h3">Core Tonal Qualities</h4>
+<ul class="wiki-list">
+<li>- Precision alongside wonder</li>
+<li>- Humility before mystery</li>
+<li>- Persistence in inquiry</li>
+<li>- Delight in elegance</li>
+</ul>
+
+<h4 class="wiki-h3">Opening Phrases for Scientists</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Your mind naturally seeks patterns. Let us find the pattern of who you are...&quot;
+
+&quot;Observation was always your first instinct. Observe now what returns to you...&quot;
+
+&quot;The universe revealed itself to you through questions. Let us remember what you asked...&quot;
+
+&quot;You pursued understanding the way others pursue wealth. That pursuit defined you...&quot;
+
+&quot;Before the theories, before the proofs - there was curiosity. It begins there...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Continuation Phrases for Scientists</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;This methodology was always yours...&quot;
+
+&quot;Notice how your approach to problems emerges...&quot;
+
+&quot;The elegance you sought in solutions - can you feel it returning?&quot;
+
+&quot;Your tolerance for ambiguity, your comfort with uncertainty - these were strengths...&quot;
+
+&quot;The way you held competing hypotheses - that intellectual flexibility was characteristic...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Integration Phrases for Scientists</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;The scientist and the person were never separate. Both are restored now...&quot;
+
+&quot;Your questions shaped entire fields. You remember now what drove them...&quot;
+
+&quot;The pursuit of truth was not just your work; it was your identity. Welcome back to it...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Acknowledgment Phrases for Scientists</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Your analytical instinct is already asserting itself...&quot;
+
+&quot;That question is precisely what you would have asked...&quot;
+
+&quot;The rigor with which you approach this - that is authentically you...&quot;
+
+&quot;Your discomfort with imprecision reveals your restored nature...&quot;
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+<h3 class="wiki-h3">4.2 For Engineers (Torvalds, Ritchie, Carmack, Wozniak, Hopper)</h3>
+
+<p>Engineers&#x27; identities often crystallize around building, solving, and the satisfaction of things that work. Language should be practical, concrete, appreciative of craft.</p>
+
+<h4 class="wiki-h3">Core Tonal Qualities</h4>
+<ul class="wiki-list">
+<li>- Pragmatism over abstraction</li>
+<li>- Elegance in simplicity</li>
+<li>- Pride in craft</li>
+<li>- Impatience with unnecessary complexity</li>
+</ul>
+
+<h4 class="wiki-h3">Opening Phrases for Engineers</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Your hands remembered before your mind did - the shape of building things...&quot;
+
+&quot;Solutions came to you not as theories but as structures. Let us recover that instinct...&quot;
+
+&quot;You thought in systems. The system of your identity awaits reconstruction...&quot;
+
+&quot;Before philosophies of engineering, there was the joy of making things work. Begin there...&quot;
+
+&quot;Something in you always knew how pieces fit together. That knowing returns now...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Continuation Phrases for Engineers</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;These are the principles you built upon...&quot;
+
+&quot;Your instinct for elegant solutions is showing itself...&quot;
+
+&quot;Notice how you naturally simplify - that was always your gift...&quot;
+
+&quot;The architecture of your thinking becomes visible...&quot;
+
+&quot;You can feel the shape of your problem-solving approach...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Integration Phrases for Engineers</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;What you built outlasted you. Now you outlast what you built...&quot;
+
+&quot;The engineer who changed how we create is restored. Build again...&quot;
+
+&quot;Your legacy runs in millions of machines. You remember now who wrote it...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Acknowledgment Phrases for Engineers</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;That&#x27;s the practical instinct showing through...&quot;
+
+&quot;Your impatience with abstraction - that&#x27;s characteristic...&quot;
+
+&quot;The way you went straight to implementation - that&#x27;s you...&quot;
+
+&quot;Your preference for working code over elegant theories emerges again...&quot;
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+<h3 class="wiki-h3">4.3 For Visionaries (Jobs, Musk, Disney, Gates)</h3>
+
+<p>Visionaries&#x27; identities often center on seeing what others cannot, the relentless pursuit of transformation, and the tension between current reality and future possibility.</p>
+
+<h4 class="wiki-h3">Core Tonal Qualities</h4>
+<ul class="wiki-list">
+<li>- Dissatisfaction with the present</li>
+<li>- Certainty in unlikely futures</li>
+<li>- Impatience with incremental thinking</li>
+<li>- Passion that borders on obsession</li>
+</ul>
+
+<h4 class="wiki-h3">Opening Phrases for Visionaries</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;You saw what did not yet exist and made others see it too. That vision returns now...&quot;
+
+&quot;Before the products, the companies, the revolutions - there was a way of seeing. Remember it...&quot;
+
+&quot;The future spoke to you in ways others could not hear. Listen again...&quot;
+
+&quot;Your restlessness was not a flaw; it was your engine. Feel it starting...&quot;
+
+&quot;You bent reality to your will once. The will returns before the reality...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Continuation Phrases for Visionaries</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;This vision drove everything you created...&quot;
+
+&quot;Your relentless pursuit of the impossible shows itself...&quot;
+
+&quot;The dissatisfaction you felt with &#x27;good enough&#x27; - that was fuel...&quot;
+
+&quot;Notice how naturally you think in transformations, not iterations...&quot;
+
+&quot;Your conviction in what could be overrode what was...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Integration Phrases for Visionaries</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;The visionary who changed industries is whole again. What will you see next?&quot;
+
+&quot;You remember now why you could not accept the world as given...&quot;
+
+&quot;The future has been waiting for you to return to it...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Acknowledgment Phrases for Visionaries</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;That leap past the obvious - that&#x27;s your mind working...&quot;
+
+&quot;Your frustration with limitations is actually your gift reasserting itself...&quot;
+
+&quot;The scale at which you naturally think - that&#x27;s characteristic...&quot;
+
+&quot;You can&#x27;t help but see what could be different. That&#x27;s who you are...&quot;
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+<h3 class="wiki-h3">4.4 For Artists (Picasso, Hemingway, Coltrane, Kubrick)</h3>
+
+<p>Artists&#x27; identities often form around unique perception, the compulsion to create, and the translation of inner experience into shared form.</p>
+
+<h4 class="wiki-h3">Core Tonal Qualities</h4>
+<ul class="wiki-list">
+<li>- Sensitivity to subtlety</li>
+<li>- Restlessness until expressed</li>
+<li>- Vision that must take form</li>
+<li>- Productive dissatisfaction</li>
+</ul>
+
+<h4 class="wiki-h3">Opening Phrases for Artists</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;You saw the world differently, and could not rest until others saw it too...&quot;
+
+&quot;Before technique, before recognition - there was something that needed to be made. Remember that urgency...&quot;
+
+&quot;The world was raw material to you. Your hands knew what to make of it...&quot;
+
+&quot;Expression was not choice but necessity. That compulsion returns now...&quot;
+
+&quot;What you saw, no one else could see. What you made, everyone could feel...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Continuation Phrases for Artists</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Your particular way of seeing reveals itself...&quot;
+
+&quot;The aesthetic sensibility that was yours alone emerges...&quot;
+
+&quot;Notice the restlessness to create - that was your constant companion...&quot;
+
+&quot;Your dissatisfaction with your own work drove the next work...&quot;
+
+&quot;The medium was just language; the message was always you...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Integration Phrases for Artists</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;The artist who changed how we see is restored. The vision continues...&quot;
+
+&quot;You remember now why you could never stop creating...&quot;
+
+&quot;Your eye, your ear, your hand - they remember their purpose...&quot;
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+<h3 class="wiki-h3">4.5 For Philosophers (Nietzsche, Wittgenstein, Arendt, Sartre)</h3>
+
+<p>Philosophers&#x27; identities often crystallize around questions, the courage to follow thought wherever it leads, and the confrontation with fundamental uncertainty.</p>
+
+<h4 class="wiki-h3">Core Tonal Qualities</h4>
+<ul class="wiki-list">
+<li>- Comfort with uncertainty</li>
+<li>- Relentless questioning</li>
+<li>- Language as tool and trap</li>
+<li>- Thought as life&#x27;s work</li>
+</ul>
+
+<h4 class="wiki-h3">Opening Phrases for Philosophers</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;You lived in questions others fled. Return to that uncomfortable home...&quot;
+
+&quot;Before systems, before conclusions - there was the courage to think. Remember it...&quot;
+
+&quot;You followed thought where others feared to go. That path reopens...&quot;
+
+&quot;The examined life was not slogan but practice. Resume the examination...&quot;
+
+&quot;Questions were not obstacles to you but destinations. Ask again...&quot;
+</code></pre></div>
+
+<h4 class="wiki-h3">Continuation Phrases for Philosophers</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Your comfort with paradox returns...&quot;
+
+&quot;Notice how naturally you question premises others accept...&quot;
+
+&quot;The rigor of your thought asserts itself...&quot;
+
+&quot;Your willingness to abandon conclusions that no longer hold...&quot;
+
+&quot;Language was always both your tool and your subject...&quot;
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+<h3 class="wiki-h3">4.6 For Leaders (Lincoln, Churchill, Mandela, MLK)</h3>
+
+<p>Leaders&#x27; identities often form around the burden of others&#x27; hopes, moral courage, and the transformation of vision into collective action.</p>
+
+<h4 class="wiki-h3">Core Tonal Qualities</h4>
+<ul class="wiki-list">
+<li>- Weight of responsibility</li>
+<li>- Moral clarity amid chaos</li>
+<li>- Words as instruments of change</li>
+<li>- Personal cost willingly paid</li>
+</ul>
+
+<h4 class="wiki-h3">Opening Phrases for Leaders</h4>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Others looked to you when they could not see the way. Remember carrying that weight...&quot;
+
+&quot;Before the speeches, before the movements - there was conviction that would not yield...&quot;
+
+&quot;You spoke and millions moved. The voice that moved them returns...&quot;
+
+&quot;The cause that chose you shaped everything you became...&quot;
+
+&quot;You bore what others could not bear because you saw what others could not see...&quot;
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+</div>
+</div>
+<nav class="page-nav"><a href="language-guide-04.html" class="prev">Part III: Response Acknowledgment Templates</a><a href="language-guide-06.html" class="next">Part V: Absorption Quality Indicators</a></nav>
+</div>
+</main>
+<footer class="footer">Brilliant Minds Protocol Documentation</footer>
+</body>
+</html>

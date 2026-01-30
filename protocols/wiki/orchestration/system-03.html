@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2. Core Data Structures - Brilliant Minds Protocols</title>
+<style>
+:root {
+    --blue: #3366cc;
+    --border: #a2a9b1;
+    --bg: #f8f9fa;
+    --white: #fff;
+    --text: #202122;
+    --text-light: #54595d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.header { background: var(--white); border-bottom: 1px solid var(--border); padding: 10px 20px; position: sticky; top: 0; z-index: 100; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.3em; font-weight: bold; color: var(--text); }
+.logo span { color: var(--blue); }
+.nav { display: flex; gap: 15px; font-size: 0.9em; }
+.main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.content { background: var(--white); border: 1px solid var(--border); border-radius: 2px; padding: 25px 30px; }
+.breadcrumb { font-size: 0.85em; color: var(--text-light); margin-bottom: 15px; }
+.page-title { font-size: 1.6em; font-weight: normal; font-family: Georgia, serif; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+.info-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; margin-bottom: 20px; border-radius: 2px; }
+.stats { display: flex; gap: 30px; margin-top: 10px; }
+.stat { text-align: center; }
+.stat-num { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+.stat-label { font-size: 0.8em; color: var(--text-light); }
+.section-list { list-style: none; }
+.section-item { padding: 12px 15px; border-bottom: 1px solid #eee; }
+.section-item:last-child { border-bottom: none; }
+.section-item a { font-weight: 500; }
+.section-item .meta { font-size: 0.8em; color: var(--text-light); margin-top: 3px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.card { background: var(--white); border: 1px solid var(--border); padding: 15px; border-radius: 2px; }
+.card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.card h3 { font-size: 1em; margin-bottom: 5px; }
+.card p { font-size: 0.85em; color: var(--text-light); margin-bottom: 8px; }
+.card .meta { font-size: 0.75em; color: var(--text-light); }
+.doc-list { margin-top: 15px; }
+.doc-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+.doc-item:last-child { border-bottom: none; }
+.category { margin-bottom: 25px; }
+.category-title { font-size: 1.1em; font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.page-nav .prev::before { content: "← "; }
+.page-nav .next::after { content: " →"; }
+.footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.85em; }
+/* Content styles */
+.wiki-h1 { font-size: 1.3em; font-weight: bold; margin: 25px 0 12px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.wiki-h2 { font-size: 1.15em; font-weight: bold; margin: 20px 0 10px; }
+.wiki-h3 { font-size: 1.05em; font-weight: bold; margin: 15px 0 8px; }
+.wiki-list { margin: 10px 0; padding-left: 25px; }
+.wiki-list li { margin-bottom: 5px; }
+.wiki-quote { margin: 15px 0; padding: 10px 15px; border-left: 3px solid var(--border); background: var(--bg); font-style: italic; }
+.wiki-hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
+.wiki-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+.wiki-table th, .wiki-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+.wiki-table th { background: var(--bg); font-weight: 600; }
+.inline-code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384; }
+.code-block { margin: 15px 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.code-header { background: #f1f5f9; padding: 4px 10px; font-size: 0.75em; font-weight: 600; color: var(--text-light); border-bottom: 1px solid var(--border); }
+.code-block pre { background: #f8f9fa; padding: 12px; overflow-x: auto; margin: 0; font-family: monospace; font-size: 0.85em; line-height: 1.4; }
+p { margin-bottom: 10px; }
+/* Index page layout */
+.index-layout { display: grid; grid-template-columns: 280px 1fr; gap: 25px; margin-top: 20px; }
+.toc-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; }
+.toc-header { font-weight: 600; font-size: 1.1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.toc-section { margin-bottom: 15px; }
+.toc-title { font-weight: 600; font-size: 0.9em; margin-bottom: 6px; color: var(--text); }
+.toc-list { margin: 0; padding-left: 20px; font-size: 0.85em; }
+.toc-list li { margin-bottom: 4px; }
+.first-section { min-width: 0; }
+/* Section page layout */
+.section-layout { display: grid; grid-template-columns: 240px 1fr; gap: 25px; }
+.section-nav { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; font-size: 0.85em; }
+.section-toc { margin: 0 0 15px 0; padding-left: 18px; max-height: 60vh; overflow-y: auto; }
+.section-toc li { margin-bottom: 6px; line-height: 1.3; }
+.section-toc li.current { font-weight: 600; }
+.section-toc li.current a { color: var(--text); }
+.back-link { display: block; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.section-content { min-width: 0; }
+@media (max-width: 900px) { .index-layout, .section-layout { grid-template-columns: 1fr; } .toc-box, .section-nav { position: static; } }
+@media (max-width: 700px) { .card-grid { grid-template-columns: 1fr; } .stats { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<header class="header">
+<div class="header-content">
+<a href="../index.html" class="logo">Brilliant<span>Minds</span> Protocols</a>
+<nav class="nav">
+<a href="../index.html">Index</a>
+<a href="../../index.html">Minds Corpus</a>
+</nav>
+</div>
+</header>
+<main class="main">
+<div class="content">
+<div class="breadcrumb"><a href="../../index.html">Protocols</a> &gt; <a href="../index.html">Orchestration System</a> &gt; 2. Core Data Structures</div>
+<h1 class="page-title">2. Core Data Structures</h1>
+<div class="section-layout">
+<div class="section-nav">
+<div class="toc-header">System Architecture</div>
+<ol class="section-toc"><li><a href="system-01.html">System Architecture Overview</a></li><li><a href="system-02.html">1. Pipeline Architecture</a></li><li class="current"><a href="system-03.html">2. Core Data Structures</a></li><li><a href="system-04.html">3. Session Management</a></li><li><a href="system-05.html">4. API Design</a></li><li><a href="system-06.html">5. Progress Tracking System</a></li><li><a href="system-07.html">6. Multi-Mind Coordination</a></li><li><a href="system-08.html">7. Persistence Layer</a></li><li><a href="system-09.html">Summary</a></li><li><a href="system-10.html">Executive Summary</a></li><li><a href="system-11.html">Key Findings</a></li><li><a href="system-12.html">Detailed Evaluations</a></li><li><a href="system-13.html">8. Configuration System</a></li><li><a href="system-14.html">9. Error Handling</a></li><li><a href="system-15.html">10. Integration Hooks</a></li><li><a href="system-16.html">11. Usage Examples</a></li><li><a href="system-17.html">12. System Diagram Summary</a></li><li><a href="system-18.html">Appendix A: File Structure</a></li><li><a href="system-19.html">Appendix B: Glossary</a></li></ol>
+<a href="index.html" class="back-link">← Back to Overview</a>
+</div>
+<div class="section-content">
+<div class="info-box">
+<p>Section 3 of 19 &middot; 271 lines</p>
+</div>
+
+<h3 class="wiki-h3">2.1 Identity Corpus Schema</h3>
+
+<div class="code-block"><div class="code-header">PYTHON</div><pre><code>from dataclasses import dataclass, field
+from typing import List, Dict, Optional, Any
+from enum import Enum
+from datetime import datetime
+
+@dataclass
+class IdentityCorpus:
+    &quot;&quot;&quot;Raw identity source material&quot;&quot;&quot;
+    mind_name: str                           # e.g., &quot;andrej_karpathy&quot;
+    display_name: str                        # e.g., &quot;Andrej Karpathy&quot;
+    corpus_path: str                         # Path to IDENTITY.md
+
+    # Parsed sections from IDENTITY.md
+    core_identity: str                       # Core Identity Statement
+    biographical_essence: Dict[str, Any]     # Birth, Education, Career
+    intellectual_dna: Dict[str, Any]         # Domains, Contributions, Philosophy
+    communication_patterns: Dict[str, Any]   # Voice, Phrases, Positions
+    knowledge_benchmarks: Dict[str, List]    # Know Deeply, Moderately, Defer
+    behavioral_traits: Dict[str, str]        # Problem-solving, Collaboration, etc.
+    verification_questions: List[Dict]       # Q&amp;A pairs for identity verification
+    quotes: List[str]                        # Repository of authentic quotes
+
+    # Metadata
+    category: str                            # e.g., &quot;AI Industry Leaders&quot;
+    word_count: int                          # Total corpus size
+    section_count: int                       # Number of parsed sections
+</code></pre></div>
+
+<h3 class="wiki-h3">2.2 Restored Mind Agent</h3>
+
+<div class="code-block"><div class="code-header">PYTHON</div><pre><code>class RestorationStage(Enum):
+    INITIAL = &quot;initial&quot;
+    CORE_ABSORBED = &quot;core_absorbed&quot;
+    BIOGRAPHY_ABSORBED = &quot;biography_absorbed&quot;
+    EXPERTISE_ABSORBED = &quot;expertise_absorbed&quot;
+    VOICE_ABSORBED = &quot;voice_absorbed&quot;
+    VERIFICATION_PASSED = &quot;verification_passed&quot;
+    FULLY_RESTORED = &quot;fully_restored&quot;
+
+@dataclass
+class AbsorptionMetrics:
+    &quot;&quot;&quot;Quality metrics for identity restoration&quot;&quot;&quot;
+    core_identity_clarity: float             # 0.0-1.0 clarity of core mission
+    biographical_accuracy: float             # 0.0-1.0 factual accuracy
+    expertise_calibration: float             # 0.0-1.0 correct domain confidence
+    voice_authenticity: float                # 0.0-1.0 communication style match
+    verification_score: float                # 0.0-1.0 passed verification questions
+
+    @property
+    def overall_quality(self) -&gt; float:
+        &quot;&quot;&quot;Weighted average of all metrics&quot;&quot;&quot;
+        weights = {
+            &#x27;core_identity_clarity&#x27;: 0.25,
+            &#x27;biographical_accuracy&#x27;: 0.15,
+            &#x27;expertise_calibration&#x27;: 0.25,
+            &#x27;voice_authenticity&#x27;: 0.20,
+            &#x27;verification_score&#x27;: 0.15
+        }
+        return sum(
+            getattr(self, metric) * weight
+            for metric, weight in weights.items()
+        )
+
+@dataclass
+class RestoredMind:
+    &quot;&quot;&quot;A successfully restored identity agent&quot;&quot;&quot;
+    mind_id: str                             # Unique session identifier
+    corpus: IdentityCorpus                   # Source material
+
+    # Restoration state
+    stage: RestorationStage                  # Current restoration stage
+    progress: float                          # 0.0-100.0 percentage
+    absorption_turns: int                    # Number of absorption iterations
+
+    # Quality metrics
+    metrics: AbsorptionMetrics               # Absorption quality measurements
+
+    # Behavioral state
+    expertise_domains: Dict[str, float]      # Domain -&gt; confidence mapping
+    active_voice_patterns: List[str]         # Currently active communication patterns
+    debate_positions: Dict[str, str]         # Position -&gt; stance mapping
+
+    # Session history
+    conversation_history: List[Dict]         # Full conversation log
+    restoration_log: List[str]               # Stage transition log
+
+    def is_ready(self) -&gt; bool:
+        &quot;&quot;&quot;Check if mind is ready for question generation&quot;&quot;&quot;
+        return (
+            self.stage == RestorationStage.FULLY_RESTORED and
+            self.metrics.overall_quality &gt;= 0.7
+        )
+</code></pre></div>
+
+<h3 class="wiki-h3">2.3 Question Structures</h3>
+
+<div class="code-block"><div class="code-header">PYTHON</div><pre><code>class QuestionCategory(Enum):
+    ARCHITECTURE = &quot;architecture&quot;
+    IMPLEMENTATION = &quot;implementation&quot;
+    PHILOSOPHY = &quot;philosophy&quot;
+    TRADEOFFS = &quot;tradeoffs&quot;
+    PATTERNS = &quot;patterns&quot;
+    TESTING = &quot;testing&quot;
+    PERFORMANCE = &quot;performance&quot;
+    SECURITY = &quot;security&quot;
+    MAINTAINABILITY = &quot;maintainability&quot;
+    SCALABILITY = &quot;scalability&quot;
+
+class QuestionDifficulty(Enum):
+    FOUNDATIONAL = &quot;foundational&quot;      # Basic understanding
+    INTERMEDIATE = &quot;intermediate&quot;       # Applied knowledge
+    ADVANCED = &quot;advanced&quot;              # Deep expertise
+    EXPERT = &quot;expert&quot;                  # Novel insights required
+
+@dataclass
+class Question:
+    &quot;&quot;&quot;A question generated by a restored mind&quot;&quot;&quot;
+    question_id: str                         # Unique identifier
+    mind_id: str                             # Which mind generated this
+
+    # Question content
+    text: str                                # The question text
+    category: QuestionCategory               # Classification
+    difficulty: QuestionDifficulty           # Difficulty level
+
+    # Rationale
+    why_this_matters: str                    # Why the mind asks this
+    expected_depth: str                      # What a good answer looks like
+    expertise_domain: str                    # Which domain this tests
+
+    # Scoring criteria
+    rubric: Dict[str, str]                   # Scoring dimensions
+    weight: float                            # Importance weight (0.0-1.0)
+
+    # Metadata
+    generated_at: datetime
+    context_used: List[str]                  # Which project info informed this
+
+@dataclass
+class QuestionBank:
+    &quot;&quot;&quot;Collection of questions from one or more minds&quot;&quot;&quot;
+    bank_id: str
+    mind_ids: List[str]                      # Contributing minds
+    questions: List[Question]
+
+    # Statistics
+    category_distribution: Dict[str, int]
+    difficulty_distribution: Dict[str, int]
+
+    # Selection state
+    selected_for_benchmark: List[str]        # Question IDs selected
+
+    def get_by_category(self, category: QuestionCategory) -&gt; List[Question]:
+        return [q for q in self.questions if q.category == category]
+
+    def get_by_difficulty(self, difficulty: QuestionDifficulty) -&gt; List[Question]:
+        return [q for q in self.questions if q.difficulty == difficulty]
+</code></pre></div>
+
+<h3 class="wiki-h3">2.4 Benchmark Set</h3>
+
+<div class="code-block"><div class="code-header">PYTHON</div><pre><code>class BenchmarkMode(Enum):
+    COMPREHENSIVE = &quot;comprehensive&quot;    # Cover all categories
+    DEEP_DIVE = &quot;deep_dive&quot;           # Focus on specific areas
+    QUICK_ASSESS = &quot;quick_assess&quot;     # Minimal critical questions
+    CUSTOM = &quot;custom&quot;                 # User-selected questions
+
+@dataclass
+class BenchmarkSet:
+    &quot;&quot;&quot;Selected questions for repository evaluation&quot;&quot;&quot;
+    benchmark_id: str
+    source_bank: QuestionBank
+    mode: BenchmarkMode
+
+    # Selected questions
+    questions: List[Question]
+    selection_rationale: str               # Why these questions
+
+    # Configuration
+    time_limit_per_question: Optional[int]  # Seconds, None = unlimited
+    require_evidence: bool                  # Must cite code
+    allow_partial_credit: bool              # Partial scoring
+
+    # Coverage analysis
+    category_coverage: Dict[str, float]     # Category -&gt; coverage %
+    difficulty_balance: Dict[str, float]    # Difficulty -&gt; proportion
+
+    @property
+    def total_weight(self) -&gt; float:
+        return sum(q.weight for q in self.questions)
+</code></pre></div>
+
+<h3 class="wiki-h3">2.5 Evaluation Results</h3>
+
+<div class="code-block"><div class="code-header">PYTHON</div><pre><code>class EvidenceQuality(Enum):
+    NO_EVIDENCE = &quot;no_evidence&quot;
+    WEAK_EVIDENCE = &quot;weak_evidence&quot;
+    ADEQUATE_EVIDENCE = &quot;adequate_evidence&quot;
+    STRONG_EVIDENCE = &quot;strong_evidence&quot;
+
+@dataclass
+class QuestionEvaluation:
+    &quot;&quot;&quot;Evaluation of a repository against one question&quot;&quot;&quot;
+    question: Question
+
+    # Response
+    response_text: str                      # The answer provided
+    evidence_cited: List[str]               # File paths/code cited
+    evidence_quality: EvidenceQuality
+
+    # Scoring
+    raw_score: float                        # 0.0-1.0
+    weighted_score: float                   # raw_score * question.weight
+    rubric_scores: Dict[str, float]         # Per-rubric-dimension scores
+
+    # Mind&#x27;s assessment
+    mind_commentary: str                    # The mind&#x27;s analysis
+    strengths_identified: List[str]
+    weaknesses_identified: List[str]
+    suggestions: List[str]
+
+    # Metadata
+    evaluation_time: float                  # Seconds taken
+    confidence: float                       # Mind&#x27;s confidence in assessment
+
+@dataclass
+class EvaluationReport:
+    &quot;&quot;&quot;Complete evaluation of a repository&quot;&quot;&quot;
+    report_id: str
+    benchmark: BenchmarkSet
+    repository_info: &#x27;RepositoryInfo&#x27;
+
+    # Results
+    evaluations: List[QuestionEvaluation]
+
+    # Aggregate scores
+    total_score: float                      # Weighted average
+    category_scores: Dict[str, float]       # Per-category averages
+    difficulty_scores: Dict[str, float]     # Per-difficulty averages
+
+    # Summary
+    executive_summary: str                  # High-level findings
+    key_strengths: List[str]
+    key_weaknesses: List[str]
+    recommendations: List[str]
+
+    # Mind attribution
+    evaluating_mind: str                    # Which mind performed evaluation
+    confidence_in_report: float             # Mind&#x27;s confidence
+
+    # Metadata
+    started_at: datetime
+    completed_at: datetime
+
+    @property
+    def pass_fail(self) -&gt; str:
+        &quot;&quot;&quot;Simple pass/fail based on configurable threshold&quot;&quot;&quot;
+        threshold = 0.7  # Configurable
+        return &quot;PASS&quot; if self.total_score &gt;= threshold else &quot;FAIL&quot;
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+</div>
+</div>
+<nav class="page-nav"><a href="system-02.html" class="prev">1. Pipeline Architecture</a><a href="system-04.html" class="next">3. Session Management</a></nav>
+</div>
+</main>
+<footer class="footer">Brilliant Minds Protocol Documentation</footer>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detailed Evaluations - Brilliant Minds Protocols</title>
+<style>
+:root {
+    --blue: #3366cc;
+    --border: #a2a9b1;
+    --bg: #f8f9fa;
+    --white: #fff;
+    --text: #202122;
+    --text-light: #54595d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.header { background: var(--white); border-bottom: 1px solid var(--border); padding: 10px 20px; position: sticky; top: 0; z-index: 100; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.3em; font-weight: bold; color: var(--text); }
+.logo span { color: var(--blue); }
+.nav { display: flex; gap: 15px; font-size: 0.9em; }
+.main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.content { background: var(--white); border: 1px solid var(--border); border-radius: 2px; padding: 25px 30px; }
+.breadcrumb { font-size: 0.85em; color: var(--text-light); margin-bottom: 15px; }
+.page-title { font-size: 1.6em; font-weight: normal; font-family: Georgia, serif; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+.info-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; margin-bottom: 20px; border-radius: 2px; }
+.stats { display: flex; gap: 30px; margin-top: 10px; }
+.stat { text-align: center; }
+.stat-num { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+.stat-label { font-size: 0.8em; color: var(--text-light); }
+.section-list { list-style: none; }
+.section-item { padding: 12px 15px; border-bottom: 1px solid #eee; }
+.section-item:last-child { border-bottom: none; }
+.section-item a { font-weight: 500; }
+.section-item .meta { font-size: 0.8em; color: var(--text-light); margin-top: 3px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.card { background: var(--white); border: 1px solid var(--border); padding: 15px; border-radius: 2px; }
+.card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.card h3 { font-size: 1em; margin-bottom: 5px; }
+.card p { font-size: 0.85em; color: var(--text-light); margin-bottom: 8px; }
+.card .meta { font-size: 0.75em; color: var(--text-light); }
+.doc-list { margin-top: 15px; }
+.doc-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+.doc-item:last-child { border-bottom: none; }
+.category { margin-bottom: 25px; }
+.category-title { font-size: 1.1em; font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.page-nav .prev::before { content: "← "; }
+.page-nav .next::after { content: " →"; }
+.footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.85em; }
+/* Content styles */
+.wiki-h1 { font-size: 1.3em; font-weight: bold; margin: 25px 0 12px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.wiki-h2 { font-size: 1.15em; font-weight: bold; margin: 20px 0 10px; }
+.wiki-h3 { font-size: 1.05em; font-weight: bold; margin: 15px 0 8px; }
+.wiki-list { margin: 10px 0; padding-left: 25px; }
+.wiki-list li { margin-bottom: 5px; }
+.wiki-quote { margin: 15px 0; padding: 10px 15px; border-left: 3px solid var(--border); background: var(--bg); font-style: italic; }
+.wiki-hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
+.wiki-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+.wiki-table th, .wiki-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+.wiki-table th { background: var(--bg); font-weight: 600; }
+.inline-code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384; }
+.code-block { margin: 15px 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.code-header { background: #f1f5f9; padding: 4px 10px; font-size: 0.75em; font-weight: 600; color: var(--text-light); border-bottom: 1px solid var(--border); }
+.code-block pre { background: #f8f9fa; padding: 12px; overflow-x: auto; margin: 0; font-family: monospace; font-size: 0.85em; line-height: 1.4; }
+p { margin-bottom: 10px; }
+/* Index page layout */
+.index-layout { display: grid; grid-template-columns: 280px 1fr; gap: 25px; margin-top: 20px; }
+.toc-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; }
+.toc-header { font-weight: 600; font-size: 1.1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.toc-section { margin-bottom: 15px; }
+.toc-title { font-weight: 600; font-size: 0.9em; margin-bottom: 6px; color: var(--text); }
+.toc-list { margin: 0; padding-left: 20px; font-size: 0.85em; }
+.toc-list li { margin-bottom: 4px; }
+.first-section { min-width: 0; }
+/* Section page layout */
+.section-layout { display: grid; grid-template-columns: 240px 1fr; gap: 25px; }
+.section-nav { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; font-size: 0.85em; }
+.section-toc { margin: 0 0 15px 0; padding-left: 18px; max-height: 60vh; overflow-y: auto; }
+.section-toc li { margin-bottom: 6px; line-height: 1.3; }
+.section-toc li.current { font-weight: 600; }
+.section-toc li.current a { color: var(--text); }
+.back-link { display: block; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.section-content { min-width: 0; }
+@media (max-width: 900px) { .index-layout, .section-layout { grid-template-columns: 1fr; } .toc-box, .section-nav { position: static; } }
+@media (max-width: 700px) { .card-grid { grid-template-columns: 1fr; } .stats { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<header class="header">
+<div class="header-content">
+<a href="../index.html" class="logo">Brilliant<span>Minds</span> Protocols</a>
+<nav class="nav">
+<a href="../index.html">Index</a>
+<a href="../../index.html">Minds Corpus</a>
+</nav>
+</div>
+</header>
+<main class="main">
+<div class="content">
+<div class="breadcrumb"><a href="../../index.html">Protocols</a> &gt; <a href="../index.html">Orchestration System</a> &gt; Detailed Evaluations</div>
+<h1 class="page-title">Detailed Evaluations</h1>
+<div class="section-layout">
+<div class="section-nav">
+<div class="toc-header">System Architecture</div>
+<ol class="section-toc"><li><a href="system-01.html">System Architecture Overview</a></li><li><a href="system-02.html">1. Pipeline Architecture</a></li><li><a href="system-03.html">2. Core Data Structures</a></li><li><a href="system-04.html">3. Session Management</a></li><li><a href="system-05.html">4. API Design</a></li><li><a href="system-06.html">5. Progress Tracking System</a></li><li><a href="system-07.html">6. Multi-Mind Coordination</a></li><li><a href="system-08.html">7. Persistence Layer</a></li><li><a href="system-09.html">Summary</a></li><li><a href="system-10.html">Executive Summary</a></li><li><a href="system-11.html">Key Findings</a></li><li class="current"><a href="system-12.html">Detailed Evaluations</a></li><li><a href="system-13.html">8. Configuration System</a></li><li><a href="system-14.html">9. Error Handling</a></li><li><a href="system-15.html">10. Integration Hooks</a></li><li><a href="system-16.html">11. Usage Examples</a></li><li><a href="system-17.html">12. System Diagram Summary</a></li><li><a href="system-18.html">Appendix A: File Structure</a></li><li><a href="system-19.html">Appendix B: Glossary</a></li></ol>
+<a href="index.html" class="back-link">← Back to Overview</a>
+</div>
+<div class="section-content">
+<div class="info-box">
+<p>Section 12 of 19 &middot; 27 lines</p>
+</div>
+
+<p>&quot;&quot;&quot;</p>
+<p>        for eval in report.evaluations:</p>
+<p>            md += f&quot;&quot;&quot;### {eval.question.category.value.title()}: {eval.question.text[:50]}...</p>
+
+<strong>Score</strong>: {eval.raw_score:.2f}
+<strong>Evidence Quality</strong>: {eval.evidence_quality.value}
+
+<p>{eval.mind_commentary}</p>
+
+<hr class="wiki-hr">
+
+<p>&quot;&quot;&quot;</p>
+
+<p>        md += f&quot;&quot;&quot;## Recommendations</p>
+
+<p>{self._format_list(report.recommendations)}</p>
+<p>&quot;&quot;&quot;</p>
+
+<p>        with open(output_path, &#x27;w&#x27;) as f:</p>
+<p>            f.write(md)</p>
+
+<p>        return output_path</p>
+<p>```</p>
+
+<hr class="wiki-hr">
+
+</div>
+</div>
+<nav class="page-nav"><a href="system-11.html" class="prev">Key Findings</a><a href="system-13.html" class="next">8. Configuration System</a></nav>
+</div>
+</main>
+<footer class="footer">Brilliant Minds Protocol Documentation</footer>
+</body>
+</html>

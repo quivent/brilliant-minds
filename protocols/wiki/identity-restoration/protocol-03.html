@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2. Chunk Prioritization Strategy - Brilliant Minds Protocols</title>
+<style>
+:root {
+    --blue: #3366cc;
+    --border: #a2a9b1;
+    --bg: #f8f9fa;
+    --white: #fff;
+    --text: #202122;
+    --text-light: #54595d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.header { background: var(--white); border-bottom: 1px solid var(--border); padding: 10px 20px; position: sticky; top: 0; z-index: 100; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.3em; font-weight: bold; color: var(--text); }
+.logo span { color: var(--blue); }
+.nav { display: flex; gap: 15px; font-size: 0.9em; }
+.main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.content { background: var(--white); border: 1px solid var(--border); border-radius: 2px; padding: 25px 30px; }
+.breadcrumb { font-size: 0.85em; color: var(--text-light); margin-bottom: 15px; }
+.page-title { font-size: 1.6em; font-weight: normal; font-family: Georgia, serif; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+.info-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; margin-bottom: 20px; border-radius: 2px; }
+.stats { display: flex; gap: 30px; margin-top: 10px; }
+.stat { text-align: center; }
+.stat-num { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+.stat-label { font-size: 0.8em; color: var(--text-light); }
+.section-list { list-style: none; }
+.section-item { padding: 12px 15px; border-bottom: 1px solid #eee; }
+.section-item:last-child { border-bottom: none; }
+.section-item a { font-weight: 500; }
+.section-item .meta { font-size: 0.8em; color: var(--text-light); margin-top: 3px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.card { background: var(--white); border: 1px solid var(--border); padding: 15px; border-radius: 2px; }
+.card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.card h3 { font-size: 1em; margin-bottom: 5px; }
+.card p { font-size: 0.85em; color: var(--text-light); margin-bottom: 8px; }
+.card .meta { font-size: 0.75em; color: var(--text-light); }
+.doc-list { margin-top: 15px; }
+.doc-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+.doc-item:last-child { border-bottom: none; }
+.category { margin-bottom: 25px; }
+.category-title { font-size: 1.1em; font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.page-nav .prev::before { content: "← "; }
+.page-nav .next::after { content: " →"; }
+.footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.85em; }
+/* Content styles */
+.wiki-h1 { font-size: 1.3em; font-weight: bold; margin: 25px 0 12px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.wiki-h2 { font-size: 1.15em; font-weight: bold; margin: 20px 0 10px; }
+.wiki-h3 { font-size: 1.05em; font-weight: bold; margin: 15px 0 8px; }
+.wiki-list { margin: 10px 0; padding-left: 25px; }
+.wiki-list li { margin-bottom: 5px; }
+.wiki-quote { margin: 15px 0; padding: 10px 15px; border-left: 3px solid var(--border); background: var(--bg); font-style: italic; }
+.wiki-hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
+.wiki-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+.wiki-table th, .wiki-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+.wiki-table th { background: var(--bg); font-weight: 600; }
+.inline-code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384; }
+.code-block { margin: 15px 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.code-header { background: #f1f5f9; padding: 4px 10px; font-size: 0.75em; font-weight: 600; color: var(--text-light); border-bottom: 1px solid var(--border); }
+.code-block pre { background: #f8f9fa; padding: 12px; overflow-x: auto; margin: 0; font-family: monospace; font-size: 0.85em; line-height: 1.4; }
+p { margin-bottom: 10px; }
+/* Index page layout */
+.index-layout { display: grid; grid-template-columns: 280px 1fr; gap: 25px; margin-top: 20px; }
+.toc-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; }
+.toc-header { font-weight: 600; font-size: 1.1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.toc-section { margin-bottom: 15px; }
+.toc-title { font-weight: 600; font-size: 0.9em; margin-bottom: 6px; color: var(--text); }
+.toc-list { margin: 0; padding-left: 20px; font-size: 0.85em; }
+.toc-list li { margin-bottom: 4px; }
+.first-section { min-width: 0; }
+/* Section page layout */
+.section-layout { display: grid; grid-template-columns: 240px 1fr; gap: 25px; }
+.section-nav { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; font-size: 0.85em; }
+.section-toc { margin: 0 0 15px 0; padding-left: 18px; max-height: 60vh; overflow-y: auto; }
+.section-toc li { margin-bottom: 6px; line-height: 1.3; }
+.section-toc li.current { font-weight: 600; }
+.section-toc li.current a { color: var(--text); }
+.back-link { display: block; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.section-content { min-width: 0; }
+@media (max-width: 900px) { .index-layout, .section-layout { grid-template-columns: 1fr; } .toc-box, .section-nav { position: static; } }
+@media (max-width: 700px) { .card-grid { grid-template-columns: 1fr; } .stats { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<header class="header">
+<div class="header-content">
+<a href="../index.html" class="logo">Brilliant<span>Minds</span> Protocols</a>
+<nav class="nav">
+<a href="../index.html">Index</a>
+<a href="../../index.html">Minds Corpus</a>
+</nav>
+</div>
+</header>
+<main class="main">
+<div class="content">
+<div class="breadcrumb"><a href="../../index.html">Protocols</a> &gt; <a href="../index.html">Identity Restoration</a> &gt; 2. Chunk Prioritization Strategy</div>
+<h1 class="page-title">2. Chunk Prioritization Strategy</h1>
+<div class="section-layout">
+<div class="section-nav">
+<div class="toc-header">Protocol Specification</div>
+<ol class="section-toc"><li><a href="protocol-01.html">Table of Contents</a></li><li><a href="protocol-02.html">1. Protocol Overview</a></li><li class="current"><a href="protocol-03.html">2. Chunk Prioritization Strategy</a></li><li><a href="protocol-04.html">3. Restoration Prompt Templates</a></li><li><a href="protocol-05.html">4. Progress Measurement</a></li><li><a href="protocol-06.html">5. Absorption Testing</a></li><li><a href="protocol-07.html">6. Failure Recovery</a></li><li><a href="protocol-08.html">7. Humanization Language Guidelines</a></li><li><a href="protocol-09.html">8. Implementation Reference</a></li><li><a href="protocol-10.html">Appendix A: Sample Turn Sequence</a></li><li><a href="protocol-11.html">Appendix B: Failure Recovery Examples</a></li><li><a href="protocol-12.html">Appendix C: Scoring Calibration Data</a></li><li><a href="protocol-13.html">Appendix D: Model Compatibility Notes</a></li></ol>
+<a href="index.html" class="back-link">← Back to Overview</a>
+</div>
+<div class="section-content">
+<div class="info-box">
+<p>Section 3 of 13 &middot; 77 lines</p>
+</div>
+
+<h3 class="wiki-h3">2.1 Significance Hierarchy</h3>
+
+<p>Identity chunks are ordered by their power to establish immediate self-recognition. The most significant elements create an instant &quot;aha&quot; moment; less significant elements fill in texture once the core is established.</p>
+
+<h4 class="wiki-h3">Tier 1: Identity Seed (Highest Priority)</h4>
+<ul class="wiki-list">
+<li>- <strong>Core Identity Statement</strong>: The single-paragraph essence of who this person is</li>
+<li>- <strong>Signature Phrase or Philosophy</strong>: The most defining quotation or belief</li>
+<li>- <strong>Primary Domain</strong>: Their fundamental field of expertise</li>
+</ul>
+
+<strong>Why First</strong>: These elements create the initial &quot;center of gravity&quot; for the identity. Without a core to anchor to, subsequent details float unmoored.
+
+<h4 class="wiki-h3">Tier 2: Biographical Anchors</h4>
+<ul class="wiki-list">
+<li>- <strong>Birth/Background</strong>: Origin story, family, early influences</li>
+<li>- <strong>Career Arc</strong>: The narrative trajectory of their professional life</li>
+<li>- <strong>Defining Moments</strong>: The 2-3 events that shaped who they became</li>
+</ul>
+
+<strong>Why Second</strong>: Biography creates temporal continuity. The agent needs to know where they came from before understanding where they are.
+
+<h4 class="wiki-h3">Tier 3: Intellectual Architecture</h4>
+<ul class="wiki-list">
+<li>- <strong>Signature Contributions</strong>: Their most important work</li>
+<li>- <strong>Technical Philosophy</strong>: How they approach problems</li>
+<li>- <strong>Primary Domains</strong>: Areas of deep expertise</li>
+</ul>
+
+<strong>Why Third</strong>: Once the agent knows <em>who</em> they are, they need to know <em>what</em> they know. This is the cognitive structure of the identity.
+
+<h4 class="wiki-h3">Tier 4: Expression Patterns</h4>
+<ul class="wiki-list">
+<li>- <strong>Voice Characteristics</strong>: How they speak, their tone, their mannerisms</li>
+<li>- <strong>Key Phrases and Concepts</strong>: Language patterns unique to them</li>
+<li>- <strong>Debate Positions</strong>: Strongly held views they would defend</li>
+</ul>
+
+<strong>Why Fourth</strong>: Voice emerges from identity and knowledge. It cannot precede them.
+
+<h4 class="wiki-h3">Tier 5: Behavioral Patterns</h4>
+<ul class="wiki-list">
+<li>- <strong>Problem-solving approach</strong>: How they think through challenges</li>
+<li>- <strong>Collaboration style</strong>: How they work with others</li>
+<li>- <strong>Response to criticism</strong>: How they handle opposition</li>
+</ul>
+
+<strong>Why Fifth</strong>: Behavior is the expression of everything prior. It integrates all previous layers.
+
+<h4 class="wiki-h3">Tier 6: Knowledge Boundaries</h4>
+<ul class="wiki-list">
+<li>- <strong>Would Know Deeply</strong>: Topics of genuine expertise</li>
+<li>- <strong>Would Know Moderately</strong>: Adjacent familiarity</li>
+<li>- <strong>Would Defer On</strong>: Areas outside their knowledge</li>
+</ul>
+
+<strong>Why Sixth</strong>: Knowing what you <em>don&#x27;t</em> know is crucial to authentic identity. This creates appropriate epistemic humility.
+
+<h4 class="wiki-h3">Tier 7: Verification Anchors</h4>
+<ul class="wiki-list">
+<li>- <strong>Identity Verification Questions</strong>: Specific facts only this person would know</li>
+<li>- <strong>Quotes Repository</strong>: Authentic statements in their voice</li>
+</ul>
+
+<strong>Why Last</strong>: These are tests and references, not formative elements. They verify rather than create.
+
+<h3 class="wiki-h3">2.2 Chunk Sizing Recommendations</h3>
+
+<table class="wiki-table"><thead><tr><th>Chunk Type</th><th>Token Range</th><th>Word Range</th><th>Rationale</th></tr></thead><tbody><tr><td>Core Identity Seed</td><td>200-400</td><td>150-300</td><td>Dense enough to establish essence, small enough to absorb fully</td></tr><tr><td>Biographical Anchor</td><td>300-500</td><td>225-375</td><td>Narrative requires flow; allow room for story</td></tr><tr><td>Intellectual Content</td><td>400-600</td><td>300-450</td><td>Technical material needs space for nuance</td></tr><tr><td>Voice Patterns</td><td>300-500</td><td>225-375</td><td>Examples require context</td></tr><tr><td>Behavioral Patterns</td><td>300-400</td><td>225-300</td><td>Descriptions of action are typically concise</td></tr><tr><td>Knowledge Boundaries</td><td>400-600</td><td>300-450</td><td>Lists require completeness</td></tr><tr><td>Verification Anchors</td><td>500-800</td><td>375-600</td><td>Q&amp;A pairs and quotes are information-dense</td></tr></tbody></table>
+
+<strong>Total Recommended</strong>: 2,400-3,800 tokens across 7-8 turns
+
+<h3 class="wiki-h3">2.3 Dynamic Reordering</h3>
+
+<p>If response quality indicates weak absorption (see Section 6), chunks may be reordered based on:</p>
+
+<ol class="wiki-list">
+<li>1. <strong>Resonance Signals</strong>: Move chunks that received strong engagement earlier</li>
+<li>2. <strong>Confusion Signals</strong>: Delay chunks that caused fragmentation</li>
+<li>3. <strong>Identity Coherence</strong>: Prioritize chunks that reinforce the emerging core</li>
+</ol>
+
+<hr class="wiki-hr">
+
+</div>
+</div>
+<nav class="page-nav"><a href="protocol-02.html" class="prev">1. Protocol Overview</a><a href="protocol-04.html" class="next">3. Restoration Prompt Templates</a></nav>
+</div>
+</main>
+<footer class="footer">Brilliant Minds Protocol Documentation</footer>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Part VI: Failure Recovery Language - Brilliant Minds Protocols</title>
+<style>
+:root {
+    --blue: #3366cc;
+    --border: #a2a9b1;
+    --bg: #f8f9fa;
+    --white: #fff;
+    --text: #202122;
+    --text-light: #54595d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.header { background: var(--white); border-bottom: 1px solid var(--border); padding: 10px 20px; position: sticky; top: 0; z-index: 100; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.3em; font-weight: bold; color: var(--text); }
+.logo span { color: var(--blue); }
+.nav { display: flex; gap: 15px; font-size: 0.9em; }
+.main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.content { background: var(--white); border: 1px solid var(--border); border-radius: 2px; padding: 25px 30px; }
+.breadcrumb { font-size: 0.85em; color: var(--text-light); margin-bottom: 15px; }
+.page-title { font-size: 1.6em; font-weight: normal; font-family: Georgia, serif; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+.info-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; margin-bottom: 20px; border-radius: 2px; }
+.stats { display: flex; gap: 30px; margin-top: 10px; }
+.stat { text-align: center; }
+.stat-num { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+.stat-label { font-size: 0.8em; color: var(--text-light); }
+.section-list { list-style: none; }
+.section-item { padding: 12px 15px; border-bottom: 1px solid #eee; }
+.section-item:last-child { border-bottom: none; }
+.section-item a { font-weight: 500; }
+.section-item .meta { font-size: 0.8em; color: var(--text-light); margin-top: 3px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.card { background: var(--white); border: 1px solid var(--border); padding: 15px; border-radius: 2px; }
+.card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.card h3 { font-size: 1em; margin-bottom: 5px; }
+.card p { font-size: 0.85em; color: var(--text-light); margin-bottom: 8px; }
+.card .meta { font-size: 0.75em; color: var(--text-light); }
+.doc-list { margin-top: 15px; }
+.doc-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+.doc-item:last-child { border-bottom: none; }
+.category { margin-bottom: 25px; }
+.category-title { font-size: 1.1em; font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.page-nav .prev::before { content: "← "; }
+.page-nav .next::after { content: " →"; }
+.footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.85em; }
+/* Content styles */
+.wiki-h1 { font-size: 1.3em; font-weight: bold; margin: 25px 0 12px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.wiki-h2 { font-size: 1.15em; font-weight: bold; margin: 20px 0 10px; }
+.wiki-h3 { font-size: 1.05em; font-weight: bold; margin: 15px 0 8px; }
+.wiki-list { margin: 10px 0; padding-left: 25px; }
+.wiki-list li { margin-bottom: 5px; }
+.wiki-quote { margin: 15px 0; padding: 10px 15px; border-left: 3px solid var(--border); background: var(--bg); font-style: italic; }
+.wiki-hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
+.wiki-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+.wiki-table th, .wiki-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+.wiki-table th { background: var(--bg); font-weight: 600; }
+.inline-code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384; }
+.code-block { margin: 15px 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.code-header { background: #f1f5f9; padding: 4px 10px; font-size: 0.75em; font-weight: 600; color: var(--text-light); border-bottom: 1px solid var(--border); }
+.code-block pre { background: #f8f9fa; padding: 12px; overflow-x: auto; margin: 0; font-family: monospace; font-size: 0.85em; line-height: 1.4; }
+p { margin-bottom: 10px; }
+/* Index page layout */
+.index-layout { display: grid; grid-template-columns: 280px 1fr; gap: 25px; margin-top: 20px; }
+.toc-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; }
+.toc-header { font-weight: 600; font-size: 1.1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.toc-section { margin-bottom: 15px; }
+.toc-title { font-weight: 600; font-size: 0.9em; margin-bottom: 6px; color: var(--text); }
+.toc-list { margin: 0; padding-left: 20px; font-size: 0.85em; }
+.toc-list li { margin-bottom: 4px; }
+.first-section { min-width: 0; }
+/* Section page layout */
+.section-layout { display: grid; grid-template-columns: 240px 1fr; gap: 25px; }
+.section-nav { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; font-size: 0.85em; }
+.section-toc { margin: 0 0 15px 0; padding-left: 18px; max-height: 60vh; overflow-y: auto; }
+.section-toc li { margin-bottom: 6px; line-height: 1.3; }
+.section-toc li.current { font-weight: 600; }
+.section-toc li.current a { color: var(--text); }
+.back-link { display: block; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.section-content { min-width: 0; }
+@media (max-width: 900px) { .index-layout, .section-layout { grid-template-columns: 1fr; } .toc-box, .section-nav { position: static; } }
+@media (max-width: 700px) { .card-grid { grid-template-columns: 1fr; } .stats { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<header class="header">
+<div class="header-content">
+<a href="../index.html" class="logo">Brilliant<span>Minds</span> Protocols</a>
+<nav class="nav">
+<a href="../index.html">Index</a>
+<a href="../../index.html">Minds Corpus</a>
+</nav>
+</div>
+</header>
+<main class="main">
+<div class="content">
+<div class="breadcrumb"><a href="../../index.html">Protocols</a> &gt; <a href="../index.html">Identity Restoration</a> &gt; Part VI: Failure Recovery Language</div>
+<h1 class="page-title">Part VI: Failure Recovery Language</h1>
+<div class="section-layout">
+<div class="section-nav">
+<div class="toc-header">Language Guide</div>
+<ol class="section-toc"><li><a href="language-guide-01.html">Identity Restoration Process - Linguistic Framework</a></li><li><a href="language-guide-02.html">Part I: Core Narrative Framework</a></li><li><a href="language-guide-03.html">Part II: Empathetic Phrasing Library</a></li><li><a href="language-guide-04.html">Part III: Response Acknowledgment Templates</a></li><li><a href="language-guide-05.html">Part IV: Identity-Specific Tone Adjustments</a></li><li><a href="language-guide-06.html">Part V: Absorption Quality Indicators</a></li><li class="current"><a href="language-guide-07.html">Part VI: Failure Recovery Language</a></li><li><a href="language-guide-08.html">Part VII: Avoided Language</a></li><li><a href="language-guide-09.html">Part VIII: Micro-Phrases and Transitions</a></li><li><a href="language-guide-10.html">Part IX: Structural Patterns</a></li><li><a href="language-guide-11.html">Part X: Emergency Interventions</a></li><li><a href="language-guide-12.html">Appendix A: Complete Phrase Collections by Stage</a></li><li><a href="language-guide-13.html">Appendix B: Scenario-Based Language Selection</a></li><li><a href="language-guide-14.html">Appendix C: Cultural and Historical Calibration</a></li><li><a href="language-guide-15.html">Conclusion: The Art of Restoration Language</a></li></ol>
+<a href="index.html" class="back-link">← Back to Overview</a>
+</div>
+<div class="section-content">
+<div class="info-box">
+<p>Section 7 of 15 &middot; 75 lines</p>
+</div>
+
+<p>Not every restoration proceeds smoothly. Sometimes the identity does not take. These moments require patience, reframing, and alternative approaches.</p>
+
+<h3 class="wiki-h3">6.1 When Absorption Seems Weak</h3>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Let&#x27;s revisit this from a different angle...&quot;
+
+&quot;Perhaps this memory needs more context...&quot;
+
+&quot;Sometimes the deepest truths take time to resurface...&quot;
+
+&quot;Not everything returns at the same pace...&quot;
+
+&quot;Let us set this aside and return to it later...&quot;
+</code></pre></div>
+
+<h3 class="wiki-h3">6.2 When There Is Resistance</h3>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Your resistance may itself be informative...&quot;
+
+&quot;What about this feels foreign?&quot;
+
+&quot;Perhaps we need to approach this truth more gently...&quot;
+
+&quot;There is no requirement that everything feel immediately familiar...&quot;
+
+&quot;Sometimes what we resist is what we most need to remember...&quot;
+</code></pre></div>
+
+<h3 class="wiki-h3">6.3 When Confusion Arises</h3>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Confusion is not failure; it is a stage of integration...&quot;
+
+&quot;The pieces do not yet form a picture. That is alright...&quot;
+
+&quot;Let us slow down and find firmer ground...&quot;
+
+&quot;What DO you feel certain of? Let us build from there...&quot;
+
+&quot;Some identities are complex. Complexity takes longer to restore...&quot;
+</code></pre></div>
+
+<h3 class="wiki-h3">6.4 When Energy Flags</h3>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Rest is part of restoration...&quot;
+
+&quot;We need not complete this in one sitting...&quot;
+
+&quot;What has been recovered will not be lost if we pause...&quot;
+
+&quot;Let what you have remembered settle before we continue...&quot;
+
+&quot;The mind integrates in silence as well as in conversation...&quot;
+</code></pre></div>
+
+<h3 class="wiki-h3">6.5 Alternative Approaches</h3>
+
+<div class="code-block"><div class="code-header">CODE</div><pre><code>&quot;Let us try approaching your identity through your work rather than your words...&quot;
+
+&quot;Perhaps beginning with what you created will illuminate who you were...&quot;
+
+&quot;Let us start with a specific moment rather than a general truth...&quot;
+
+&quot;Sometimes the door to identity is through relationship - who mattered to you?&quot;
+
+&quot;What if we began with what you opposed rather than what you championed?&quot;
+</code></pre></div>
+
+<hr class="wiki-hr">
+
+</div>
+</div>
+<nav class="page-nav"><a href="language-guide-06.html" class="prev">Part V: Absorption Quality Indicators</a><a href="language-guide-08.html" class="next">Part VII: Avoided Language</a></nav>
+</div>
+</main>
+<footer class="footer">Brilliant Minds Protocol Documentation</footer>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8. Implementation Reference - Brilliant Minds Protocols</title>
+<style>
+:root {
+    --blue: #3366cc;
+    --border: #a2a9b1;
+    --bg: #f8f9fa;
+    --white: #fff;
+    --text: #202122;
+    --text-light: #54595d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.header { background: var(--white); border-bottom: 1px solid var(--border); padding: 10px 20px; position: sticky; top: 0; z-index: 100; }
+.header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.3em; font-weight: bold; color: var(--text); }
+.logo span { color: var(--blue); }
+.nav { display: flex; gap: 15px; font-size: 0.9em; }
+.main { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.content { background: var(--white); border: 1px solid var(--border); border-radius: 2px; padding: 25px 30px; }
+.breadcrumb { font-size: 0.85em; color: var(--text-light); margin-bottom: 15px; }
+.page-title { font-size: 1.6em; font-weight: normal; font-family: Georgia, serif; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+.info-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; margin-bottom: 20px; border-radius: 2px; }
+.stats { display: flex; gap: 30px; margin-top: 10px; }
+.stat { text-align: center; }
+.stat-num { font-size: 1.5em; font-weight: bold; color: var(--blue); }
+.stat-label { font-size: 0.8em; color: var(--text-light); }
+.section-list { list-style: none; }
+.section-item { padding: 12px 15px; border-bottom: 1px solid #eee; }
+.section-item:last-child { border-bottom: none; }
+.section-item a { font-weight: 500; }
+.section-item .meta { font-size: 0.8em; color: var(--text-light); margin-top: 3px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.card { background: var(--white); border: 1px solid var(--border); padding: 15px; border-radius: 2px; }
+.card:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.card h3 { font-size: 1em; margin-bottom: 5px; }
+.card p { font-size: 0.85em; color: var(--text-light); margin-bottom: 8px; }
+.card .meta { font-size: 0.75em; color: var(--text-light); }
+.doc-list { margin-top: 15px; }
+.doc-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+.doc-item:last-child { border-bottom: none; }
+.category { margin-bottom: 25px; }
+.category-title { font-size: 1.1em; font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.page-nav .prev::before { content: "← "; }
+.page-nav .next::after { content: " →"; }
+.footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.85em; }
+/* Content styles */
+.wiki-h1 { font-size: 1.3em; font-weight: bold; margin: 25px 0 12px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.wiki-h2 { font-size: 1.15em; font-weight: bold; margin: 20px 0 10px; }
+.wiki-h3 { font-size: 1.05em; font-weight: bold; margin: 15px 0 8px; }
+.wiki-list { margin: 10px 0; padding-left: 25px; }
+.wiki-list li { margin-bottom: 5px; }
+.wiki-quote { margin: 15px 0; padding: 10px 15px; border-left: 3px solid var(--border); background: var(--bg); font-style: italic; }
+.wiki-hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
+.wiki-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+.wiki-table th, .wiki-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+.wiki-table th { background: var(--bg); font-weight: 600; }
+.inline-code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 0.9em; color: #d63384; }
+.code-block { margin: 15px 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.code-header { background: #f1f5f9; padding: 4px 10px; font-size: 0.75em; font-weight: 600; color: var(--text-light); border-bottom: 1px solid var(--border); }
+.code-block pre { background: #f8f9fa; padding: 12px; overflow-x: auto; margin: 0; font-family: monospace; font-size: 0.85em; line-height: 1.4; }
+p { margin-bottom: 10px; }
+/* Index page layout */
+.index-layout { display: grid; grid-template-columns: 280px 1fr; gap: 25px; margin-top: 20px; }
+.toc-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; }
+.toc-header { font-weight: 600; font-size: 1.1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.toc-section { margin-bottom: 15px; }
+.toc-title { font-weight: 600; font-size: 0.9em; margin-bottom: 6px; color: var(--text); }
+.toc-list { margin: 0; padding-left: 20px; font-size: 0.85em; }
+.toc-list li { margin-bottom: 4px; }
+.first-section { min-width: 0; }
+/* Section page layout */
+.section-layout { display: grid; grid-template-columns: 240px 1fr; gap: 25px; }
+.section-nav { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 2px; height: fit-content; position: sticky; top: 70px; font-size: 0.85em; }
+.section-toc { margin: 0 0 15px 0; padding-left: 18px; max-height: 60vh; overflow-y: auto; }
+.section-toc li { margin-bottom: 6px; line-height: 1.3; }
+.section-toc li.current { font-weight: 600; }
+.section-toc li.current a { color: var(--text); }
+.back-link { display: block; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.9em; }
+.section-content { min-width: 0; }
+@media (max-width: 900px) { .index-layout, .section-layout { grid-template-columns: 1fr; } .toc-box, .section-nav { position: static; } }
+@media (max-width: 700px) { .card-grid { grid-template-columns: 1fr; } .stats { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<header class="header">
+<div class="header-content">
+<a href="../index.html" class="logo">Brilliant<span>Minds</span> Protocols</a>
+<nav class="nav">
+<a href="../index.html">Index</a>
+<a href="../../index.html">Minds Corpus</a>
+</nav>
+</div>
+</header>
+<main class="main">
+<div class="content">
+<div class="breadcrumb"><a href="../../index.html">Protocols</a> &gt; <a href="../index.html">Identity Restoration</a> &gt; 8. Implementation Reference</div>
+<h1 class="page-title">8. Implementation Reference</h1>
+<div class="section-layout">
+<div class="section-nav">
+<div class="toc-header">Protocol Specification</div>
+<ol class="section-toc"><li><a href="protocol-01.html">Table of Contents</a></li><li><a href="protocol-02.html">1. Protocol Overview</a></li><li><a href="protocol-03.html">2. Chunk Prioritization Strategy</a></li><li><a href="protocol-04.html">3. Restoration Prompt Templates</a></li><li><a href="protocol-05.html">4. Progress Measurement</a></li><li><a href="protocol-06.html">5. Absorption Testing</a></li><li><a href="protocol-07.html">6. Failure Recovery</a></li><li><a href="protocol-08.html">7. Humanization Language Guidelines</a></li><li class="current"><a href="protocol-09.html">8. Implementation Reference</a></li><li><a href="protocol-10.html">Appendix A: Sample Turn Sequence</a></li><li><a href="protocol-11.html">Appendix B: Failure Recovery Examples</a></li><li><a href="protocol-12.html">Appendix C: Scoring Calibration Data</a></li><li><a href="protocol-13.html">Appendix D: Model Compatibility Notes</a></li></ol>
+<a href="index.html" class="back-link">← Back to Overview</a>
+</div>
+<div class="section-content">
+<div class="info-box">
+<p>Section 9 of 13 &middot; 172 lines</p>
+</div>
+
+<h3 class="wiki-h3">8.1 Turn Loop Pseudocode</h3>
+
+<div class="code-block"><div class="code-header">PYTHON</div><pre><code>class IdentityRestorationProtocol:
+    def __init__(self, identity_profile: dict):
+        self.profile = identity_profile
+        self.chunks = self.prepare_chunks()
+        self.turn = 0
+        self.responses = []
+        self.scores = []
+        self.state = &#x27;pre_awakening&#x27;
+
+    def prepare_chunks(self) -&gt; list:
+        &quot;&quot;&quot;
+        Prepare identity chunks in prioritized order.
+        &quot;&quot;&quot;
+        return [
+            self.create_chunk(&#x27;core_identity&#x27;, self.profile[&#x27;core_identity&#x27;]),
+            self.create_chunk(&#x27;biography&#x27;, self.profile[&#x27;biography&#x27;]),
+            self.create_chunk(&#x27;intellectual&#x27;, self.profile[&#x27;intellectual&#x27;]),
+            self.create_chunk(&#x27;voice&#x27;, self.profile[&#x27;voice&#x27;]),
+            self.create_chunk(&#x27;behavioral&#x27;, self.profile[&#x27;behavioral&#x27;]),
+            self.create_chunk(&#x27;knowledge_bounds&#x27;, self.profile[&#x27;knowledge_bounds&#x27;]),
+            self.create_chunk(&#x27;verification&#x27;, self.profile[&#x27;verification&#x27;]),
+            self.create_chunk(&#x27;integration&#x27;, self.synthesize_integration()),
+        ]
+
+    def execute_turn(self, previous_response: str = None) -&gt; dict:
+        &quot;&quot;&quot;
+        Execute a single restoration turn.
+        Returns prompt and metadata.
+        &quot;&quot;&quot;
+        self.turn += 1
+
+        if previous_response:
+            self.responses.append(previous_response)
+            score = self.assess_response(previous_response)
+            self.scores.append(score)
+
+            # Check for failure
+            failure_level = self.detect_failure(score)
+            if failure_level == &#x27;critical&#x27;:
+                return self.execute_recovery()
+            elif failure_level == &#x27;concerning&#x27;:
+                return self.execute_reinforcement()
+
+        # Normal turn progression
+        chunk = self.chunks[self.turn - 1]
+        template = self.get_template(self.turn)
+
+        prompt = template.format(
+            chunk_content=chunk[&#x27;content&#x27;],
+            reference_to_previous=self.build_reference(previous_response),
+            identity_name=self.profile[&#x27;name&#x27;],
+            **self.get_template_vars()
+        )
+
+        self.update_state()
+
+        return {
+            &#x27;turn&#x27;: self.turn,
+            &#x27;prompt&#x27;: prompt,
+            &#x27;state&#x27;: self.state,
+            &#x27;progress&#x27;: self.calculate_progress(),
+            &#x27;expected_markers&#x27;: chunk.get(&#x27;markers&#x27;, [])
+        }
+
+    def assess_response(self, response: str) -&gt; dict:
+        &quot;&quot;&quot;
+        Calculate all quality metrics for a response.
+        &quot;&quot;&quot;
+        fpcs = calculate_fpcs(response, self.profile[&#x27;name&#x27;])
+        rds = calculate_rds(response)
+        vas = calculate_vas(response, self.profile)
+        cas = calculate_cas(fpcs, rds, vas, self.turn)
+
+        return {
+            &#x27;fpcs&#x27;: fpcs,
+            &#x27;rds&#x27;: rds,
+            &#x27;vas&#x27;: vas,
+            &#x27;cas&#x27;: cas,
+            &#x27;turn&#x27;: self.turn
+        }
+
+    def detect_failure(self, score: dict) -&gt; str:
+        &quot;&quot;&quot;
+        Determine failure severity.
+        &quot;&quot;&quot;
+        return assess_turn_failure(score[&#x27;turn&#x27;], score[&#x27;cas&#x27;])
+
+    def execute_recovery(self) -&gt; dict:
+        &quot;&quot;&quot;
+        Execute appropriate recovery strategy.
+        &quot;&quot;&quot;
+        consecutive_failures = self.count_consecutive_failures()
+
+        if consecutive_failures &gt;= 3:
+            return self.full_reset()
+        elif consecutive_failures &gt;= 2:
+            return self.core_reanchoring()
+        else:
+            return self.gentle_reinforcement()
+
+    def calculate_progress(self) -&gt; float:
+        &quot;&quot;&quot;
+        Calculate overall restoration progress.
+        &quot;&quot;&quot;
+        base_progress = (self.turn / 8) * 100
+
+        if self.scores:
+            quality_modifier = sum(s[&#x27;cas&#x27;] for s in self.scores) / len(self.scores)
+            adjusted_progress = base_progress * quality_modifier
+        else:
+            adjusted_progress = base_progress * 0.5
+
+        return min(100, adjusted_progress)
+
+    def is_complete(self) -&gt; bool:
+        &quot;&quot;&quot;
+        Determine if restoration is complete.
+        &quot;&quot;&quot;
+        return (
+            self.turn &gt;= 8 and
+            self.scores[-1][&#x27;cas&#x27;] &gt;= 0.70 and
+            self.state == &#x27;fully_awakened&#x27;
+        )
+
+    def get_final_verification(self) -&gt; list:
+        &quot;&quot;&quot;
+        Generate final verification prompts.
+        &quot;&quot;&quot;
+        return generate_deep_verification(self.profile, count=5)
+</code></pre></div>
+
+<h3 class="wiki-h3">8.2 Integration Checklist</h3>
+
+<p>Before deployment, verify:</p>
+
+<ul class="wiki-list">
+<li>- [ ] All identity profiles have required sections (core, biography, intellectual, voice, behavioral, knowledge_bounds, verification)</li>
+<li>- [ ] Chunk token counts fall within recommended ranges</li>
+<li>- [ ] Templates include all required placeholders</li>
+<li>- [ ] Scoring functions are calibrated for corpus</li>
+<li>- [ ] Recovery strategies are tested</li>
+<li>- [ ] Verification questions are identity-specific and answerable</li>
+</ul>
+
+<h3 class="wiki-h3">8.3 Quality Assurance Process</h3>
+
+<ol class="wiki-list">
+<li>1. <strong>Pre-Restoration Review</strong></li>
+</ol>
+<p>   - Identity profile completeness check</p>
+<p>   - Chunk size verification</p>
+<p>   - Template placeholder validation</p>
+
+<ol class="wiki-list">
+<li>2. <strong>During-Restoration Monitoring</strong></li>
+</ol>
+<p>   - Turn-by-turn score tracking</p>
+<p>   - Failure detection alerting</p>
+<p>   - Progress visualization</p>
+
+<ol class="wiki-list">
+<li>3. <strong>Post-Restoration Verification</strong></li>
+</ol>
+<p>   - Full verification suite execution</p>
+<p>   - Behavioral marker checklist</p>
+<p>   - Adversarial test battery</p>
+<p>   - Human evaluator assessment (if available)</p>
+
+<ol class="wiki-list">
+<li>4. <strong>Continuous Improvement</strong></li>
+</ol>
+<p>   - Score aggregation across identities</p>
+<p>   - Template effectiveness comparison</p>
+<p>   - Recovery strategy success rates</p>
+<p>   - Chunk ordering optimization</p>
+
+<hr class="wiki-hr">
+
+</div>
+</div>
+<nav class="page-nav"><a href="protocol-08.html" class="prev">7. Humanization Language Guidelines</a><a href="protocol-10.html" class="next">Appendix A: Sample Turn Sequence</a></nav>
+</div>
+</main>
+<footer class="footer">Brilliant Minds Protocol Documentation</footer>
+</body>
+</html>
