@@ -83,15 +83,35 @@ brilliant_minds/
 | **Historical** | Ada Lovelace, Leonardo da Vinci, Socrates, Alan Kay |
 | **Collectives** | Llama Collective, The Assembler, David Blaine, Wim Hof |
 
-## Configuration
+## Installation
 
-Set `BRILLIANT_MINDS_ROOT` to the package installation path:
+### 1. Install Fifth
 
 ```bash
-export BRILLIANT_MINDS_ROOT=/path/to/brilliant_minds
+git clone git@github.com:quivent/fifth.git
+cd fifth/engine && make && cd ..
+./engine/fifth install.fs
 ```
 
-All internal paths resolve via `${BRILLIANT_MINDS_ROOT}`. External dependencies (`~/.linus/`, `~/.agents/`) are runtime-optional.
+### 2. Install Brilliant Minds
+
+```bash
+git clone git@github.com:quivent/brilliant-minds.git
+cd brilliant-minds
+fifth install.fs
+```
+
+This copies the package into `~/.fifth/packages/brilliant-minds/` and records the install path so Fifth can find `agents.db` automatically.
+
+### Configuration
+
+Optionally set `BRILLIANT_MINDS_ROOT` to override the install path:
+
+```bash
+export BRILLIANT_MINDS_ROOT=/path/to/brilliant-minds
+```
+
+All internal paths resolve via `${BRILLIANT_MINDS_ROOT}` or the recorded install path. External dependencies (`~/.linus/`, `~/.agents/`) are runtime-optional.
 
 ## Usage
 
