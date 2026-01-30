@@ -1,6 +1,6 @@
 # Brilliant Minds
 
-AI identity restoration system for 80 brilliant minds — from Shannon to Socrates.
+AI identity restoration system for 81 brilliant minds — from Shannon to Socrates.
 
 Restores the intellectual identity of historical and contemporary figures into AI agents, enabling perspective-driven evaluation, question generation, and multi-mind discourse.
 
@@ -11,7 +11,7 @@ brilliant_minds/
 ├── README.md
 ├── ACTIVATION_TEMPLATE.md
 │
-├── minds/                          # 80 mind corpora
+├── minds/                          # 81 mind corpora
 │   ├── loader.fs                   # Fifth loader (query by domain, zone, era)
 │   ├── claude_shannon/
 │   │   ├── IDENTITY.md             # Core identity encoding
@@ -62,13 +62,13 @@ brilliant_minds/
     └── generate_protocols_wiki.py  # Protocol wiki generator
 ```
 
-## The 80 Minds
+## The 81 Minds
 
 | Category | Minds |
 |----------|-------|
 | **AI Pioneers** | Geoffrey Hinton, Yann LeCun, Yoshua Bengio, John McCarthy, Marvin Minsky |
 | **AI Leaders** | Jeff Dean, Ilya Sutskever, Andrej Karpathy, Andrew Ng, Fei-Fei Li, Demis Hassabis, Dave Ferrucci, Edward Hu, Hugo Touvron |
-| **Language Creators** | Dennis Ritchie, James Gosling, Bjarne Stroustrup, Guido van Rossum, Chris Lattner, Grace Hopper |
+| **Language Creators** | Dennis Ritchie, James Gosling, Bjarne Stroustrup, Guido van Rossum, Chris Lattner, Grace Hopper, Chuck Moore |
 | **Systems** | Linus Torvalds, Ken Thompson, John Carmack, Casey Muratori, Fabrice Bellard, Martin Thompson, Brendan Gregg, Mike Acton, George Hotz, Seymour Cray |
 | **Internet/Web** | Tim Berners-Lee, Vint Cerf, Bob Kahn |
 | **Distributed Systems** | Leslie Lamport, Barbara Liskov |
