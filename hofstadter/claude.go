@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"time"
 )
 
@@ -17,6 +18,44 @@ const (
 	defaultModel     = "claude-sonnet-4-6"
 	defaultMaxTokens = 1024
 )
+
+// Executor is the runtime backing a kloop turn. Two implementations:
+// APIExecutor (HTTP to api.anthropic.com) and CLIExecutor (shells out to
+// the local `claude` binary, which is itself a Claude — the strange loop
+// at the system call level).
+type Executor interface {
+	// Call performs one turn with the given system prompt and message
+	// history, returning the assistant's text response.
+	Call(system string, msgs []apiMessage) (string, error)
+	// Name identifies the executor in user-facing output.
+	Name() string
+	// PrintUsage writes a final usage summary to stderr (no-op if N/A).
+	PrintUsage()
+}
+
+// NewExecutor selects an executor by kind:
+//   - "auto"   : claude if `claude` binary on PATH, else api
+//   - "claude" : shell out to `claude -p`
+//   - "api"    : HTTP to api.anthropic.com
+//
+// modelExplicit signals whether the user passed --model. The CLI executor
+// only forwards --model when explicit (so it doesn't override the user's
+// configured default in their `claude` settings).
+func NewExecutor(kind, model string, maxTokens int, modelExplicit bool) (Executor, error) {
+	switch kind {
+	case "", "auto":
+		if _, err := exec.LookPath("claude"); err == nil {
+			return NewCLIExecutor(model, modelExplicit)
+		}
+		return NewAPIExecutor(model, maxTokens)
+	case "claude", "cli":
+		return NewCLIExecutor(model, modelExplicit)
+	case "api", "http":
+		return NewAPIExecutor(model, maxTokens)
+	default:
+		return nil, fmt.Errorf("unknown executor: %q (want auto|claude|api)", kind)
+	}
+}
 
 type apiBlock struct {
 	Type         string            `json:"type"`
@@ -56,24 +95,22 @@ type apiResponse struct {
 	} `json:"error"`
 }
 
-// ClaudeClient is a minimal stdlib HTTP client for the Anthropic Messages API.
-// The system prompt is sent with cache_control:ephemeral so successive turns
-// for the same mind reuse the cached identity (the IDENTITY.md is large and
-// stable, so this matters for kloops with many turns).
-type ClaudeClient struct {
+// APIExecutor talks to the Anthropic Messages API directly over HTTP.
+// The system prompt is sent with cache_control:ephemeral so successive
+// turns for the same mind reuse the cached identity.
+type APIExecutor struct {
 	apiKey    string
 	model     string
 	maxTokens int
 	httpc     *http.Client
 
-	// cumulative usage across this client's lifetime
 	totalUsage apiUsage
 }
 
-func NewClaudeClient(model string, maxTokens int) (*ClaudeClient, error) {
+func NewAPIExecutor(model string, maxTokens int) (*APIExecutor, error) {
 	key := os.Getenv("ANTHROPIC_API_KEY")
 	if key == "" {
-		return nil, errors.New("ANTHROPIC_API_KEY not set (or use --dry-run)")
+		return nil, errors.New("ANTHROPIC_API_KEY not set (use --executor=claude or --dry-run)")
 	}
 	if model == "" {
 		model = defaultModel
@@ -81,7 +118,7 @@ func NewClaudeClient(model string, maxTokens int) (*ClaudeClient, error) {
 	if maxTokens <= 0 {
 		maxTokens = defaultMaxTokens
 	}
-	return &ClaudeClient{
+	return &APIExecutor{
 		apiKey:    key,
 		model:     model,
 		maxTokens: maxTokens,
@@ -89,11 +126,12 @@ func NewClaudeClient(model string, maxTokens int) (*ClaudeClient, error) {
 	}, nil
 }
 
-// Call sends one Messages turn. The system prompt is cached.
-func (c *ClaudeClient) Call(system string, msgs []apiMessage) (string, error) {
+func (e *APIExecutor) Name() string { return "api" }
+
+func (e *APIExecutor) Call(system string, msgs []apiMessage) (string, error) {
 	req := apiRequest{
-		Model:     c.model,
-		MaxTokens: c.maxTokens,
+		Model:     e.model,
+		MaxTokens: e.maxTokens,
 		System: []apiBlock{
 			{
 				Type:         "text",
@@ -112,10 +150,10 @@ func (c *ClaudeClient) Call(system string, msgs []apiMessage) (string, error) {
 		return "", err
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("x-api-key", c.apiKey)
+	httpReq.Header.Set("x-api-key", e.apiKey)
 	httpReq.Header.Set("anthropic-version", apiVersion)
 
-	resp, err := c.httpc.Do(httpReq)
+	resp, err := e.httpc.Do(httpReq)
 	if err != nil {
 		return "", err
 	}
@@ -137,10 +175,10 @@ func (c *ClaudeClient) Call(system string, msgs []apiMessage) (string, error) {
 		return "", errors.New("empty response content")
 	}
 
-	c.totalUsage.InputTokens += ar.Usage.InputTokens
-	c.totalUsage.OutputTokens += ar.Usage.OutputTokens
-	c.totalUsage.CacheCreationInputTokens += ar.Usage.CacheCreationInputTokens
-	c.totalUsage.CacheReadInputTokens += ar.Usage.CacheReadInputTokens
+	e.totalUsage.InputTokens += ar.Usage.InputTokens
+	e.totalUsage.OutputTokens += ar.Usage.OutputTokens
+	e.totalUsage.CacheCreationInputTokens += ar.Usage.CacheCreationInputTokens
+	e.totalUsage.CacheReadInputTokens += ar.Usage.CacheReadInputTokens
 
 	var out bytes.Buffer
 	for _, b := range ar.Content {
@@ -151,14 +189,13 @@ func (c *ClaudeClient) Call(system string, msgs []apiMessage) (string, error) {
 	return out.String(), nil
 }
 
-// PrintUsage writes a one-line usage summary to stderr.
-func (c *ClaudeClient) PrintUsage() {
-	if c == nil {
+func (e *APIExecutor) PrintUsage() {
+	if e == nil {
 		return
 	}
-	u := c.totalUsage
+	u := e.totalUsage
 	fmt.Fprintf(os.Stderr,
-		"\n[usage] in=%d out=%d cache_create=%d cache_read=%d\n",
+		"\n[usage api] in=%d out=%d cache_create=%d cache_read=%d\n",
 		u.InputTokens, u.OutputTokens, u.CacheCreationInputTokens, u.CacheReadInputTokens,
 	)
 }

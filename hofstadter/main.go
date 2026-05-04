@@ -62,12 +62,17 @@ Flags (loop / braid / panel):
   --rounds N         loop: traversals (default 1).  braid: reflections (default 3).
   --no-close         loop: do NOT close back to first mind (default closes if N>=2)
   --synthesis <id>   panel: synthesis mind (default: the_assembler)
-  --model NAME       Claude model (default claude-sonnet-4-6)
-  --max-tokens N     max output tokens per turn (default 1024)
-  --dry-run          print prompts; do not call the API
+  --executor KIND    auto (default) | claude | api
+                       claude: shell out to local 'claude' binary
+                       api:    HTTP to api.anthropic.com (needs key)
+                       auto:   claude if on PATH, else api
+  --model NAME       Claude model (default: claude-sonnet-4-6 for api;
+                     claude executor uses your CLI default unless set)
+  --max-tokens N     api executor: max output tokens per turn (default 1024)
+  --dry-run          print prompts; do not call any executor
 
 Environment:
-  ANTHROPIC_API_KEY     required unless --dry-run
+  ANTHROPIC_API_KEY     required for --executor=api (auto falls back to it)
   BRILLIANT_MINDS_ROOT  override path to the repo (else auto-detected)
 
 Mind ids may be either snake_case (douglas_hofstadter) or kebab-case

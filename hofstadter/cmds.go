@@ -7,14 +7,16 @@ import (
 )
 
 type runFlags struct {
-	question  string
-	rounds    int
-	model     string
-	maxTokens int
-	close     bool
-	closeSet  bool // true if --close or --no-close was explicitly given
-	dryRun    bool
-	synthesis string
+	question     string
+	rounds       int
+	model        string
+	modelSet     bool // true if --model was explicitly given
+	maxTokens    int
+	executor     string
+	close        bool
+	closeSet     bool // true if --close or --no-close was explicitly given
+	dryRun       bool
+	synthesis    string
 }
 
 // parseRunArgs is a minimal hand-rolled flag parser that allows positional
@@ -23,6 +25,7 @@ func parseRunArgs(args []string) (*runFlags, []string, error) {
 	rf := &runFlags{
 		model:     defaultModel,
 		maxTokens: defaultMaxTokens,
+		executor:  "auto",
 		close:     true,
 		synthesis: "the_assembler",
 	}
@@ -79,6 +82,13 @@ func parseRunArgs(args []string) (*runFlags, []string, error) {
 				return nil, nil, err
 			}
 			rf.model = v
+			rf.modelSet = true
+		case "--executor":
+			v, err := take(a)
+			if err != nil {
+				return nil, nil, err
+			}
+			rf.executor = v
 		case "--max-tokens":
 			v, err := take(a)
 			if err != nil {
@@ -179,12 +189,14 @@ func cmdLoop(args []string) {
 	}
 
 	if err := Loop(minds, RunOpts{
-		Question:  q,
-		Rounds:    rf.rounds,
-		Model:     rf.model,
-		MaxTokens: rf.maxTokens,
-		DryRun:    rf.dryRun,
-		Close:     close,
+		Question:      q,
+		Rounds:        rf.rounds,
+		Model:         rf.model,
+		ModelExplicit: rf.modelSet,
+		MaxTokens:     rf.maxTokens,
+		Executor:      rf.executor,
+		DryRun:        rf.dryRun,
+		Close:         close,
 	}); err != nil {
 		die(err)
 	}
@@ -208,11 +220,13 @@ func cmdBraid(args []string) {
 		die(err)
 	}
 	if err := Braid(m, RunOpts{
-		Question:  q,
-		Rounds:    rf.rounds,
-		Model:     rf.model,
-		MaxTokens: rf.maxTokens,
-		DryRun:    rf.dryRun,
+		Question:      q,
+		Rounds:        rf.rounds,
+		Model:         rf.model,
+		ModelExplicit: rf.modelSet,
+		MaxTokens:     rf.maxTokens,
+		Executor:      rf.executor,
+		DryRun:        rf.dryRun,
 	}); err != nil {
 		die(err)
 	}
@@ -249,10 +263,12 @@ func cmdPanel(args []string) {
 		die(fmt.Errorf("synthesis mind %q: %w", rf.synthesis, err))
 	}
 	if err := Panel(minds, syn, RunOpts{
-		Question:  q,
-		Model:     rf.model,
-		MaxTokens: rf.maxTokens,
-		DryRun:    rf.dryRun,
+		Question:      q,
+		Model:         rf.model,
+		ModelExplicit: rf.modelSet,
+		MaxTokens:     rf.maxTokens,
+		Executor:      rf.executor,
+		DryRun:        rf.dryRun,
 	}); err != nil {
 		die(err)
 	}

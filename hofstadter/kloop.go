@@ -2,18 +2,21 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 )
 
 // RunOpts is the union of options used by the kloop primitives.
 type RunOpts struct {
-	Question  string
-	Rounds    int
-	Model     string
-	MaxTokens int
-	DryRun    bool
-	Close     bool // loop only — append a final turn returning to mind[0]
+	Question      string
+	Rounds        int
+	Model         string
+	ModelExplicit bool   // true if user passed --model
+	MaxTokens     int
+	Executor      string // "auto" | "claude" | "api"
+	DryRun        bool
+	Close         bool // loop only — append a final turn returning to mind[0]
 }
 
 // Loop runs a kloop: minds respond in sequence, each seeing only the prior
@@ -37,14 +40,15 @@ func Loop(minds []*Mind, opts RunOpts) error {
 		chain = append(chain, minds[0])
 	}
 
-	var client *ClaudeClient
+	var executor Executor
 	if !opts.DryRun {
 		var err error
-		client, err = NewClaudeClient(opts.Model, opts.MaxTokens)
+		executor, err = NewExecutor(opts.Executor, opts.Model, opts.MaxTokens, opts.ModelExplicit)
 		if err != nil {
 			return err
 		}
-		defer client.PrintUsage()
+		defer executor.PrintUsage()
+		fmt.Fprintf(os.Stderr, "[executor: %s]\n", executor.Name())
 	}
 
 	prior := opts.Question
@@ -66,7 +70,7 @@ func Loop(minds []*Mind, opts RunOpts) error {
 			printDryRun(m, userMsg)
 			prior = fmt.Sprintf("(dry-run response from %s)", m.Name)
 		} else {
-			resp, err := client.Call(m.SystemPrompt(), []apiMessage{
+			resp, err := executor.Call(m.SystemPrompt(), []apiMessage{
 				{Role: "user", Content: userMsg},
 			})
 			if err != nil {
@@ -114,14 +118,15 @@ func Braid(m *Mind, opts RunOpts) error {
 		opts.Rounds = 3
 	}
 
-	var client *ClaudeClient
+	var executor Executor
 	if !opts.DryRun {
 		var err error
-		client, err = NewClaudeClient(opts.Model, opts.MaxTokens)
+		executor, err = NewExecutor(opts.Executor, opts.Model, opts.MaxTokens, opts.ModelExplicit)
 		if err != nil {
 			return err
 		}
-		defer client.PrintUsage()
+		defer executor.PrintUsage()
+		fmt.Fprintf(os.Stderr, "[executor: %s]\n", executor.Name())
 	}
 
 	history := []apiMessage{
@@ -138,7 +143,7 @@ func Braid(m *Mind, opts RunOpts) error {
 			fmt.Printf("[user]: %s\n", history[len(history)-1].Content)
 			resp = fmt.Sprintf("(dry-run response from %s, round %d)", m.Name, r+1)
 		} else {
-			out, err := client.Call(m.SystemPrompt(), history)
+			out, err := executor.Call(m.SystemPrompt(), history)
 			if err != nil {
 				return fmt.Errorf("braid round %d: %w", r+1, err)
 			}
@@ -173,14 +178,15 @@ func Panel(minds []*Mind, synthesis *Mind, opts RunOpts) error {
 		return fmt.Errorf("panel needs at least 2 minds")
 	}
 
-	var client *ClaudeClient
+	var executor Executor
 	if !opts.DryRun {
 		var err error
-		client, err = NewClaudeClient(opts.Model, opts.MaxTokens)
+		executor, err = NewExecutor(opts.Executor, opts.Model, opts.MaxTokens, opts.ModelExplicit)
 		if err != nil {
 			return err
 		}
-		defer client.PrintUsage()
+		defer executor.PrintUsage()
+		fmt.Fprintf(os.Stderr, "[executor: %s]\n", executor.Name())
 	}
 
 	type result struct {
@@ -199,7 +205,7 @@ func Panel(minds []*Mind, synthesis *Mind, opts RunOpts) error {
 				results[i] = result{mind: m, text: fmt.Sprintf("(dry-run from %s)", m.Name)}
 				return
 			}
-			resp, err := client.Call(m.SystemPrompt(), []apiMessage{
+			resp, err := executor.Call(m.SystemPrompt(), []apiMessage{
 				{Role: "user", Content: opts.Question},
 			})
 			results[i] = result{mind: m, text: resp, err: err}
@@ -237,7 +243,7 @@ func Panel(minds []*Mind, synthesis *Mind, opts RunOpts) error {
 		fmt.Printf("[user]: %s\n", truncate(sb.String(), 600))
 		return nil
 	}
-	resp, err := client.Call(synthesis.SystemPrompt(), []apiMessage{
+	resp, err := executor.Call(synthesis.SystemPrompt(), []apiMessage{
 		{Role: "user", Content: sb.String()},
 	})
 	if err != nil {
