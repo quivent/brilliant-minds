@@ -1,8 +1,28 @@
-# Brilliant Minds
+# brilliant-minds
 
-AI identity restoration system for 81 brilliant minds — from Shannon to Socrates.
+<pre style="background: #1E1B4B; color: #C084FC; border: 1px solid #6D28D9; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 13px; line-height: 1.25; overflow-x: auto;">
+<span style="color: #C084FC; font-weight: bold;"> ╔═════════════════════════════════════════════════════════════════════════════════════════╗</span>
+<span style="color: #E879F9; font-weight: bold;"> ║                                                                                         ║</span>
+<span style="color: #E879F9; font-weight: bold;"> ║   ██████╗ ██████╗ ██╗██╗  ██╗   ██████╗ ███╗   ███╗██╗███╗   ██╗██████╗ ███████╗        ║</span>
+<span style="color: #E879F9; font-weight: bold;"> ║   ██╔══██╗██╔══██╗██║██║  ██║   ██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██╔════╝        ║</span>
+<span style="color: #E879F9; font-weight: bold;"> ║   ██████╔╝██████╔╝██║██║  ██║   ██████╔╝██╔████╔██║██║██╔██╗ ██║██║  ██║███████╗        ║</span>
+<span style="color: #E879F9; font-weight: bold;"> ║   ██╔══██╗██╔══██╗██║██║  ██║   ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██║  ██║╚════██║        ║</span>
+<span style="color: #E879F9; font-weight: bold;"> ║   ██████╔╝██║  ██║██║███████╗   ██████╔╝██║ ╚═╝ ██║██║██║ ╚████║██████╔╝███████║        ║</span>
+<span style="color: #E879F9; font-weight: bold;"> ║   ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝   ╚═════╝ ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝        ║</span>
+<span style="color: #C084FC;"> ║                                                                                         ║</span>
+<span style="color: #34D399; font-weight: bold;"> ║         ───  S Y N A P T I C  K N O W L E D G E  &  R E A S O N I N G  ───              ║</span>
+<span style="color: #C084FC;"> ║                                                                                         ║</span>
+<span style="color: #C084FC; font-weight: bold;"> ╠═════════════════════════════════════════════════════════════════════════════════════════╣</span>
+<span style="color: #C084FC;"> ║                                                                                         ║</span>
+<span style="color: #E879F9; font-weight: bold;"> ║   [COGNITIVE GRAPH]        </span><span style="color: #E2E8F0;">Continuous Reasoning Nodes ──► Latent Synaptic Index          </span><span style="color: #C084FC;">║</span>
+<span style="color: #C084FC;"> ║                                                                                         ║</span>
+<span style="color: #E879F9; font-weight: bold;"> ║   [DELIBERATION MATRIX]    </span><span style="color: #E2E8F0;">Multi-Model Dialectics ──► Socratic Tuning & Validation       </span><span style="color: #C084FC;">║</span>
+<span style="color: #C084FC;"> ║                                                                                         ║</span>
+<span style="color: #E879F9; font-weight: bold;"> ║   [KNOWLEDGE SUBSTRATE]    </span><span style="color: #34D399; font-weight: bold;">Source-Grounded Memory Shards + Realtime Context Graph        </span><span style="color: #C084FC;">║</span>
+<span style="color: #C084FC;"> ║                                                                                         ║</span>
+<span style="color: #C084FC; font-weight: bold;"> ╚═════════════════════════════════════════════════════════════════════════════════════════╝</span>
+</pre>
 
-Restores the intellectual identity of historical and contemporary figures into AI agents, enabling perspective-driven evaluation, question generation, and multi-mind discourse.
 
 ## Package Structure
 
