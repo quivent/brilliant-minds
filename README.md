@@ -1,68 +1,41 @@
-# Brilliant Minds
+<div align="center">
 
-AI identity restoration system for 81 brilliant minds — from Shannon to Socrates.
+```
+ ____       _ _ _ _             _   __  __ _           _     
+| __ ) _ __(_) | (_) __ _ _ __ | |_|  \/  (_)_ __   __| |___ 
+|  _ \| '__| | | | |/ _` | '_ \| __| |\/| | | '_ \ / _` / __|
+| |_) | |  | | | | | (_| | | | | |_| |  | | | | | | (_| \__ \
+|____/|_|  |_|_|_|_|\__,_|_| |_|\__|_|  |_|_|_| |_|\__,_|___/
+```
+
+**Brilliant Minds**
+
+*AI identity restoration system for 81 brilliant minds — from Shannon to Socrates.*
+
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-Research-green.svg?style=for-the-badge)](#license)
+
+</div>
+
+---
+
+## 📑 Table of Contents
+
+- [⚡ Overview](#-overview)
+- [✨ The 81 Minds](#-the-81-minds)
+- [📦 Installation](#-installation)
+- [🚀 Usage](#-usage)
+- [🔧 Architecture](#-architecture)
+
+---
+
+## ⚡ Overview
 
 Restores the intellectual identity of historical and contemporary figures into AI agents, enabling perspective-driven evaluation, question generation, and multi-mind discourse.
 
-## Package Structure
+---
 
-```
-brilliant_minds/
-├── README.md
-├── ACTIVATION_TEMPLATE.md
-│
-├── minds/                          # 81 mind corpora
-│   ├── loader.fs                   # Fifth loader (query by domain, zone, era)
-│   ├── claude_shannon/
-│   │   ├── IDENTITY.md             # Core identity encoding
-│   │   ├── ACTIVATION.md           # Activation protocol
-│   │   ├── CONTEXT.md              # Socratic tuner context
-│   │   ├── INVOCATION.md           # Invocation script
-│   │   └── research_*.md           # Extended corpus (varies by mind)
-│   └── ...79 more
-│
-├── commands/                       # 55 Claude Code slash commands
-│   ├── shannon.md                  # /shannon - summon Shannon
-│   ├── linus-torvalds.md           # /linus-torvalds - summon Linus
-│   ├── ferrucci.md                 # /ferrucci - summon Ferrucci
-│   ├── app-agent.md                # /app-agent - project-aware agent
-│   ├── project-encode.md           # /project-encode - encode project identity
-│   └── ...50 more
-│
-├── hooks/                          # Claude Code event hooks
-│   ├── settings.json               # Hook configuration (4 events)
-│   ├── session-welcome.sh          # SessionStart - agent infrastructure display
-│   ├── agent-sqlite                # PreToolUse - agent matching from DB
-│   ├── agent-precontext-sqlite/    # Rust source for agent-sqlite
-│   ├── pre-compact-lore.py         # PreCompact - transcript preservation
-│   ├── transcript-to-lore.py       # SessionEnd - chronicle generation
-│   └── lore_utils.py               # Shared Python utilities
-│
-├── db/                             # SQLite databases
-│   ├── agents.db                   # 166 agents (80 minds + 86 functional) + mind_metadata
-│   └── projects.db                 # Project identity encodings
-│
-├── protocols/                      # Protocol specifications
-│   ├── identity_restoration/       # Multi-turn restoration protocol
-│   ├── question_generation/        # Identity-driven question generation
-│   ├── benchmark_selection/        # Benchmark selection methodology
-│   ├── repository_evaluation/      # Repository evaluation process
-│   └── orchestration/              # System architecture design
-│
-├── src/                            # Python implementation
-│   ├── orchestrator.py             # Main orchestration system
-│   ├── identity_restoration.py     # Identity restoration engine
-│   ├── question_generation.py      # Question generation engine
-│   ├── benchmark_selection.py      # Benchmark selection engine
-│   └── repository_evaluation.py    # Repository evaluation engine
-│
-└── wiki/                           # Generated documentation
-    ├── index.html                  # Wikipedia-style reference
-    ├── generate_wiki.py            # HTML generator
-    └── generate_protocols_wiki.py  # Protocol wiki generator
-```
-
-## The 81 Minds
+## ✨ The 81 Minds
 
 | Category | Minds |
 |----------|-------|
@@ -73,17 +46,16 @@ brilliant_minds/
 | **Internet/Web** | Tim Berners-Lee, Vint Cerf, Bob Kahn |
 | **Distributed Systems** | Leslie Lamport, Barbara Liskov |
 | **Cryptography/Privacy** | David Chaum, Stuart Haber, Ralph Merkle |
-| **Aerospace/Software Engineering** | Margaret Hamilton |
 | **Hardware/Business** | Jensen Huang, Steve Jobs, Elon Musk |
-| **Neuroscience** | Donald Hebb, Eric Kandel, Santiago Ramon y Cajal, Michael Hasselmo, Terrence Sejnowski, Karl Friston, David Marr, Warren McCulloch |
 | **Mathematics/Logic** | Alan Turing, John von Neumann, John Nash, Kurt Godel, Donald Knuth, Claude Shannon |
 | **Physics** | Albert Einstein, Richard Feynman, Nikola Tesla, Marie Curie, J. Robert Oppenheimer |
-| **Philosophy/Theory** | Daniel Dennett, Douglas Hofstadter, Thomas Kuhn, Mikhail Bakhtin, Christopher Alexander, Herbert Simon, Norbert Wiener, Buckminster Fuller |
-| **Psychology/Education** | B.F. Skinner, Ivan Pavlov, Paulo Freire |
 | **Historical** | Ada Lovelace, Leonardo da Vinci, Socrates, Alan Kay |
-| **Collectives** | Llama Collective, The Assembler, David Blaine, Wim Hof |
 
-## Installation
+*(Includes Neuroscience, Philosophy, Psychology, and Collectives as well)*
+
+---
+
+## 📦 Installation
 
 ### 1. Install Fifth
 
@@ -101,23 +73,16 @@ cd brilliant-minds
 fifth install.fs
 ```
 
-This copies the package into `~/.fifth/packages/brilliant-minds/` and records the install path so Fifth can find `agents.db` automatically.
+> [!NOTE]
+> This copies the package into `~/.fifth/packages/brilliant-minds/` and records the install path so Fifth can find `agents.db` automatically. Optionally set `BRILLIANT_MINDS_ROOT` to override the install path.
 
-### Configuration
+---
 
-Optionally set `BRILLIANT_MINDS_ROOT` to override the install path:
-
-```bash
-export BRILLIANT_MINDS_ROOT=/path/to/brilliant-minds
-```
-
-All internal paths resolve via `${BRILLIANT_MINDS_ROOT}` or the recorded install path. External dependencies (`~/.linus/`, `~/.agents/`) are runtime-optional.
-
-## Usage
+## 🚀 Usage
 
 ### Summon a Mind (Claude Code)
 
-```
+```text
 /shannon     # Claude Shannon - information theory lens
 /linus       # Linus Torvalds - no-bullshit systems review
 /ferrucci    # Dave Ferrucci - parallel consensus analysis
@@ -128,6 +93,7 @@ All internal paths resolve via `${BRILLIANT_MINDS_ROOT}` or the recorded install
 
 ```python
 from brilliant_minds.src import BrilliantMindsOrchestrator, OrchestratorConfig
+from pathlib import Path
 
 config = OrchestratorConfig(
     corpus_path=Path("./minds"),
@@ -136,17 +102,15 @@ config = OrchestratorConfig(
 )
 orchestrator = BrilliantMindsOrchestrator(config)
 
+# Restore and interact
 hinton = await orchestrator.restore_mind("geoffrey_hinton")
 questions = await orchestrator.generate_questions("geoffrey_hinton", project_info={...})
-report = await orchestrator.evaluate_repository(repo_path, mind_name="geoffrey_hinton")
+report = await orchestrator.evaluate_repository("repo_path", mind_name="geoffrey_hinton")
 ```
 
 ### Fifth API
 
 ```bash
-# Count minds
-MINDS_CMD=count fifth minds/loader.fs
-
 # List all minds
 MINDS_CMD=list fifth minds/loader.fs
 
@@ -155,24 +119,31 @@ MINDS_CMD=get MINDS_ARG=claude-shannon fifth minds/loader.fs
 
 # Search by domain, zone, or era
 MINDS_CMD=search-domain MINDS_ARG=Cryptography fifth minds/loader.fs
-MINDS_CMD=search-zone MINDS_ARG=synthesis fifth minds/loader.fs
-MINDS_CMD=search-era MINDS_ARG=1943 fifth minds/loader.fs
-
-# List all domains or zones
-MINDS_CMD=domains fifth minds/loader.fs
-MINDS_CMD=zones fifth minds/loader.fs
-
-# Random mind
-MINDS_CMD=random fifth minds/loader.fs
 ```
 
-## Requirements
+---
 
-- Fifth (`brew tap quivent/fifth && brew install fifth`)
-- Python 3.10+ (for src/ orchestrator)
-- anthropic (Claude API)
-- Rust toolchain (optional, to rebuild hooks/agent-sqlite)
+## 🔧 Architecture
 
-## License
+<details>
+<summary>Package Structure</summary>
 
-Research and educational use.
+```
+brilliant_minds/
+├── minds/                          # 81 mind corpora
+│   ├── claude_shannon/
+│   │   ├── IDENTITY.md             # Core identity encoding
+│   │   ├── ACTIVATION.md           # Activation protocol
+│   │   ├── CONTEXT.md              # Socratic tuner context
+│   │   └── INVOCATION.md           # Invocation script
+├── commands/                       # 55 Claude Code slash commands
+├── hooks/                          # Claude Code event hooks
+├── db/                             # SQLite databases (agents, projects)
+├── protocols/                      # Protocol specifications
+├── src/                            # Python implementation
+└── wiki/                           # Generated documentation
+```
+</details>
+
+> [!IMPORTANT]
+> Requires Fifth, Python 3.10+, the `anthropic` package, and optionally a Rust toolchain to rebuild hooks/agent-sqlite.
