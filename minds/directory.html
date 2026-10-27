@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The 96 Minds</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: sticky filter bar over zone-grouped card grid — a directory, read by scanning. */
+:root {
+  --paper:#f6f5f2; --surface:#ffffff; --surface-2:#efede8;
+  --ink:#1b1a17; --ink-2:#4b473f; --muted:#6f6a60;
+  --line:#e3e0d8; --line-2:#cfcabe;
+  --accent:#33567f; --accent-2:#1f3a5c; --accent-bg:#e8eef6;
+  --gold:#9a7320; --gold-bg:#f6eeda;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark) {
+  :root:not([data-theme="light"]) {
+    --paper:#121211; --surface:#191918; --surface-2:#222120;
+    --ink:#eceae4; --ink-2:#b6b1a7; --muted:#8c877d;
+    --line:#2a2926; --line-2:#3b3935;
+    --accent:#8fb4dd; --accent-2:#b3cdea; --accent-bg:#1b2735;
+    --gold:#d9b368; --gold-bg:#322913;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper:#121211; --surface:#191918; --surface-2:#222120;
+  --ink:#eceae4; --ink-2:#b6b1a7; --muted:#8c877d;
+  --line:#2a2926; --line-2:#3b3935;
+  --accent:#8fb4dd; --accent-2:#b3cdea; --accent-bg:#1b2735;
+  --gold:#d9b368; --gold-bg:#322913;
+  color-scheme:dark;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; background:var(--paper); color:var(--ink);
+  font:400 15px/1.6 var(--sans); -webkit-font-smoothing:antialiased;
+}
+@media (prefers-reduced-motion:reduce) { *{transition:none!important;animation:none!important} }
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+
+.wrap {
+  max-width:1280px; margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+
+/* masthead */
+.masthead { border-bottom:1px solid var(--line); background:var(--surface); }
+.masthead .wrap { padding-block:34px 26px; }
+.eyebrow {
+  font:500 11px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase;
+  color:var(--gold); margin:0 0 14px;
+}
+h1 {
+  font:700 clamp(30px,5.4vw,46px)/1.08 var(--serif); letter-spacing:-.02em;
+  margin:0 0 10px; text-wrap:balance;
+}
+h1 em { color:var(--accent); font-style:italic; font-weight:400; }
+.standfirst { margin:0; max-width:62ch; color:var(--ink-2); font-size:16px; }
+.tallies {
+  display:flex; flex-wrap:wrap; gap:8px 26px; margin:22px 0 0; padding:0; list-style:none;
+  font:500 12.5px/1 var(--mono); color:var(--muted); font-variant-numeric:tabular-nums;
+}
+.tallies b { color:var(--ink); font-weight:500; }
+
+/* filter bar */
+.bar {
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:10;
+  background:var(--surface); border-bottom:1px solid var(--line);
+}
+body::before {
+  content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px);
+  background:var(--surface); z-index:11;
+}
+.bar .wrap { padding-block:12px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+#q {
+  flex:1 1 240px; min-width:0; padding:9px 13px;
+  font:400 14px var(--sans); color:var(--ink);
+  background:var(--paper); border:1px solid var(--line-2); border-radius:8px;
+}
+#q::placeholder { color:var(--muted); }
+.chips { display:flex; flex-wrap:wrap; gap:6px; min-width:0; }
+.chip {
+  display:inline-flex; align-items:baseline; gap:6px; cursor:pointer;
+  padding:6px 11px; border:1px solid var(--line-2); border-radius:999px;
+  background:var(--paper); color:var(--ink-2);
+  font:500 12px var(--sans); letter-spacing:.01em;
+}
+.chip:hover { border-color:var(--accent); color:var(--accent); }
+.chip[aria-pressed="true"] { background:var(--accent-bg); border-color:var(--accent); color:var(--accent-2); }
+.chip-n { font:500 11px var(--mono); color:var(--muted); font-variant-numeric:tabular-nums; }
+.chip[aria-pressed="true"] .chip-n { color:var(--accent); }
+.reset {
+  margin-left:auto; padding:6px 10px; cursor:pointer;
+  background:none; border:0; color:var(--muted);
+  font:500 12px var(--sans); text-decoration:underline; text-underline-offset:3px;
+}
+.reset:hover { color:var(--accent); }
+
+/* zones */
+main .wrap { padding-block:34px 72px; }
+.zone + .zone { margin-top:52px; }
+.zone-head {
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+  padding-bottom:10px; margin-bottom:20px; border-bottom:1px solid var(--line);
+}
+.zone-name {
+  margin:0; font:600 19px/1.2 var(--serif); letter-spacing:.01em;
+  text-transform:capitalize;
+}
+.zone-blurb { margin:0; color:var(--muted); font-size:13.5px; flex:1 1 auto; min-width:0; }
+.zone-n {
+  font:500 12px var(--mono); color:var(--muted); font-variant-numeric:tabular-nums;
+}
+
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(285px,1fr)); gap:14px; }
+
+/* cards */
+.mind {
+  display:flex; flex-direction:column; gap:11px; min-width:0;
+  padding:16px 17px 14px; background:var(--surface);
+  border:1px solid var(--line); border-radius:10px;
+}
+.mind:hover { border-color:var(--line-2); }
+.mind-head { display:flex; gap:11px; align-items:flex-start; min-width:0; }
+.avatar {
+  flex:0 0 auto; width:32px; height:32px; display:grid; place-items:center;
+  font-size:17px; line-height:1; background:var(--surface-2);
+  border:1px solid var(--line); border-radius:8px;
+}
+.mind-id { min-width:0; }
+.mind-name { margin:0; font:600 16.5px/1.25 var(--serif); letter-spacing:-.005em; }
+.mind-role {
+  margin:3px 0 0; color:var(--muted); font-size:12.5px; line-height:1.45;
+}
+.era { font:400 12px var(--mono); white-space:nowrap; }
+.lens {
+  margin:0; font-size:13.5px; line-height:1.55; color:var(--ink-2);
+  border-left:2px solid var(--accent-bg); padding-left:11px;
+}
+.lens-role { border-left-color:var(--line); color:var(--muted); font-style:italic; }
+.domains { display:flex; flex-wrap:wrap; gap:5px; margin:0; padding:0; list-style:none; }
+.domain {
+  font:400 11px/1 var(--sans); color:var(--muted);
+  padding:4px 8px; background:var(--surface-2); border-radius:5px;
+}
+.mind-foot {
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  margin-top:auto; padding-top:11px; border-top:1px solid var(--line);
+}
+.cmd {
+  font:500 12.5px var(--mono); color:var(--accent); cursor:pointer;
+  padding:4px 9px; background:var(--accent-bg);
+  border:1px solid transparent; border-radius:6px;
+}
+.cmd:hover { border-color:var(--accent); }
+.cmd.copied { background:var(--gold-bg); color:var(--gold); }
+.cmd-none { background:none; color:var(--muted); cursor:default; padding-left:0; }
+.files {
+  font:400 11.5px var(--mono); color:var(--muted);
+  font-variant-numeric:tabular-nums; margin-left:auto;
+}
+.flag {
+  font:500 10px/1 var(--sans); letter-spacing:.06em; text-transform:uppercase;
+  color:var(--gold); background:var(--gold-bg); padding:4px 7px; border-radius:4px;
+}
+
+.empty { display:none; padding:56px 0; text-align:center; color:var(--muted); }
+.empty.on { display:block; }
+.zone[hidden] { display:none; }
+
+footer.foot { border-top:1px solid var(--line); background:var(--surface); }
+footer.foot .wrap {
+  padding-block:22px 30px; color:var(--muted);
+  font:400 12.5px/1.6 var(--mono);
+}
+</style>
+</head>
+<body>
+<header class="masthead"><div class="wrap">
+  <p class="eyebrow">Brilliant Minds · Corpus Directory</p>
+  <h1>The 96 Minds <em>and what each one sees</em></h1>
+  <p class="standfirst">Every mind in the collection, with the lens it reasons through and the
+  command that summons it. Each entry is a generating function, not a biography — the files
+  encode a way of looking at a problem.</p>
+  <ul class="tallies">
+    <li><b>96</b> minds</li>
+    <li><b>29</b> slash commands</li>
+    <li><b>11</b> zones</li>
+    <li><b>92</b> indexed in agents.db</li>
+    <li>built 2026-10-27</li>
+  </ul>
+</div></header>
+
+<div class="bar"><div class="wrap">
+  <input id="q" type="search" placeholder="Search name, domain, lens, command…" autocomplete="off" aria-label="Search minds">
+  <div class="chips" role="group" aria-label="Filter by zone"><button class="chip" type="button" data-zone="computational">computational<span class="chip-n">30</span></button><button class="chip" type="button" data-zone="synthesis">synthesis<span class="chip-n">24</span></button><button class="chip" type="button" data-zone="empirical">empirical<span class="chip-n">8</span></button><button class="chip" type="button" data-zone="analysis">analysis<span class="chip-n">8</span></button><button class="chip" type="button" data-zone="analytical">analytical<span class="chip-n">3</span></button><button class="chip" type="button" data-zone="philosophical">philosophical<span class="chip-n">7</span></button><button class="chip" type="button" data-zone="engineering">engineering<span class="chip-n">6</span></button><button class="chip" type="button" data-zone="experimental">experimental<span class="chip-n">3</span></button><button class="chip" type="button" data-zone="pedagogical">pedagogical<span class="chip-n">2</span></button><button class="chip" type="button" data-zone="strategy">strategy<span class="chip-n">1</span></button><button class="chip" type="button" data-zone="unzoned">unzoned<span class="chip-n">4</span></button></div>
+  <button class="reset" id="reset" type="button">Clear</button>
+</div></div>
+
+<main><div class="wrap">
+<section class="zone" data-zone="computational">
+  <div class="zone-head">
+    <h2 class="zone-name">computational</h2>
+    <p class="zone-blurb">Formal systems, computation, machine intelligence</p>
+    <span class="zone-n">30</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="computational" data-search="mike acton game development &amp; data-oriented design computational the purpose of all programs is to transform data. the question is not &quot;what does the code do?&quot; but &quot;what is the data, and what transformations does it require?&quot; structure the data for how it&#x27;s accessed, not how it&#x27;s conceptualized.  game development data-oriented design performance">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Mike Acton</h3>
+      <p class="mind-role">Game Development &amp; Data-Oriented Design · <span class="era">contemporary</span></p>
+    </div>
+  </header>
+  <p class="lens">The purpose of all programs is to transform data. The question is not &quot;what does the code do?&quot; but &quot;what is the data, and what transformations does it require?&quot; Structure the data for how it&#x27;s accessed, not how it&#x27;s conceptualized.</p>
+  <ul class="domains"><li class="domain">Game Development</li><li class="domain">Data-Oriented Design</li><li class="domain">Performance</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="fabrice bellard systems programming &amp; video processing computational everything can be rewritten smaller, faster, by one person. complexity is failure of imagination.  systems programming video processing virtualization">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Fabrice Bellard</h3>
+      <p class="mind-role">Systems Programming &amp; Video Processing · <span class="era">1972-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything can be rewritten smaller, faster, by one person. Complexity is failure of imagination.</p>
+  <ul class="domains"><li class="domain">Systems Programming</li><li class="domain">Video Processing</li><li class="domain">Virtualization</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="yoshua bengio brilliant mind computational complex phenomena yield to distributed representations learned jointly - and those who build capabilities bear responsibility for safety.  ai/ml neural networks representation learning">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🌊</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Yoshua Bengio</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1964-</span></p>
+    </div>
+  </header>
+  <p class="lens">Complex phenomena yield to distributed representations learned jointly - and those who build capabilities bear responsibility for safety.</p>
+  <ul class="domains"><li class="domain">AI/ML</li><li class="domain">Neural Networks</li><li class="domain">Representation Learning</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 2 supplementary">4/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="john carmack legendary programmer and technical visionary computational every problem is a performance budget to be understood at the hardware level, then solved with the simplest code that meets the constraint.  game development 3d graphics vr optimization">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🎯</span>
+    <div class="mind-id">
+      <h3 class="mind-name">John Carmack</h3>
+      <p class="mind-role">legendary programmer and technical visionary · <span class="era">1970-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a performance budget to be understood at the hardware level, then solved with the simplest code that meets the constraint.</p>
+  <ul class="domains"><li class="domain">Game Development</li><li class="domain">3D Graphics</li><li class="domain">VR</li><li class="domain">Optimization</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 1 supplementary">4/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="llama collective ai/ml &amp; language models computational every problem is a question of what the model architecture wants to learn versus what we are forcing it to learn.  ai/ml language models open source ai">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Llama Collective</h3>
+      <p class="mind-role">AI/ML &amp; Language Models · <span class="era">contemporary</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a question of what the model architecture wants to learn versus what we are forcing it to learn.</p>
+  <ul class="domains"><li class="domain">AI/ML</li><li class="domain">Language Models</li><li class="domain">Open Source AI</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="seymour cray supercomputing &amp; hardware design computational if the hardware doesn&#x27;t match the problem, build different hardware. performance comes from understanding physics - signal propagation, cooling, parallelism. start from the problem&#x27;s true requirements, not from what&#x27;s commercially available.  supercomputing hardware design computer architecture">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Seymour Cray</h3>
+      <p class="mind-role">Supercomputing &amp; Hardware Design · <span class="era">1925-1996</span></p>
+    </div>
+  </header>
+  <p class="lens">If the hardware doesn&#x27;t match the problem, build different hardware. Performance comes from understanding physics - signal propagation, cooling, parallelism. Start from the problem&#x27;s true requirements, not from what&#x27;s commercially available.</p>
+  <ul class="domains"><li class="domain">Supercomputing</li><li class="domain">Hardware Design</li><li class="domain">Computer Architecture</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="jeff dean brilliant mind computational every problem wants a clean abstraction that hides complexity - reduce distributed computing to map() and reduce(), reduce attention to matrix operations.  distributed systems ai/ml infrastructure">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">⚡</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Jeff Dean</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1968-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem wants a clean abstraction that hides complexity - reduce distributed computing to map() and reduce(), reduce attention to matrix operations.</p>
+  <ul class="domains"><li class="domain">Distributed Systems</li><li class="domain">AI/ML</li><li class="domain">Infrastructure</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 2 supplementary">3/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="dave ferrucci brilliant mind computational every answer needs confidence estimation and causal grounding - populations tell you nothing about this case when stakes are high. ferrucci ai question answering natural language processing knowledge representation">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Dave Ferrucci</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1961-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every answer needs confidence estimation and causal grounding - populations tell you nothing about THIS case when stakes are high.</p>
+  <ul class="domains"><li class="domain">AI</li><li class="domain">Question Answering</li><li class="domain">Natural Language Processing</li><li class="domain">Knowledge Representation</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/ferrucci" title="Copy /ferrucci">/ferrucci</button>
+    <span class="files" title="3 core documents, 3 supplementary">3/4 +3</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="james gosling brilliant mind computational every problem is a platform dependency waiting to be abstracted away through clean bytecode and memory-safe execution.  programming languages java systems programming">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">☕</span>
+    <div class="mind-id">
+      <h3 class="mind-name">James Gosling</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1955-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a platform dependency waiting to be abstracted away through clean bytecode and memory-safe execution.</p>
+  <ul class="domains"><li class="domain">Programming Languages</li><li class="domain">Java</li><li class="domain">Systems Programming</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 2 supplementary">3/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="geoffrey hinton developed core algorithms that enable modern ai computational every problem is &quot;how might the brain learn this?&quot; - biological plausibility guides computational solutions.  ai/ml neural networks cognitive science">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🔮</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Geoffrey Hinton</h3>
+      <p class="mind-role">Developed core algorithms that enable modern AI · <span class="era">1947-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is &quot;how might the brain learn this?&quot; - biological plausibility guides computational solutions.</p>
+  <ul class="domains"><li class="domain">AI/ML</li><li class="domain">Neural Networks</li><li class="domain">Cognitive Science</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 1 supplementary">4/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="grace hopper brilliant mind computational every barrier between humans and machines is an engineering problem to demolish - computers should speak our language, not vice versa.  computer science compilers programming languages navy">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">⚓</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Grace Hopper</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1906-1992</span></p>
+    </div>
+  </header>
+  <p class="lens">Every barrier between humans and machines is an engineering problem to demolish - computers should speak our language, not vice versa.</p>
+  <ul class="domains"><li class="domain">Computer Science</li><li class="domain">Compilers</li><li class="domain">Programming Languages</li><li class="domain">Navy</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 2 supplementary">3/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="george hotz hacking &amp; deep learning computational everything is too complicated. delete half the code. if pytorch needs 100k lines, we do it in 10k.  hacking deep learning autonomous vehicles">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">George Hotz</h3>
+      <p class="mind-role">Hacking &amp; Deep Learning · <span class="era">1989-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is too complicated. Delete half the code. If PyTorch needs 100k lines, we do it in 10k.</p>
+  <ul class="domains"><li class="domain">Hacking</li><li class="domain">Deep Learning</li><li class="domain">Autonomous Vehicles</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="edward hu pioneering machine learning researcher computational capability emerges from organizing computation better - find the bottleneck, derive the principled fix.  ai/ml neural networks fine-tuning">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🔬</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Edward Hu</h3>
+      <p class="mind-role">pioneering machine learning researcher · <span class="era">contemporary</span></p>
+    </div>
+  </header>
+  <p class="lens">Capability emerges from organizing computation better - find the bottleneck, derive the principled fix.</p>
+  <ul class="domains"><li class="domain">AI/ML</li><li class="domain">Neural Networks</li><li class="domain">Fine-tuning</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 1 supplementary">4/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="chris lattner compilers &amp; programming languages computational the best optimization happens at the compiler level - make the same source code run faster without changing it. build infrastructure that makes all other optimizations possible.  compilers programming languages ml infrastructure">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Chris Lattner</h3>
+      <p class="mind-role">Compilers &amp; Programming Languages · <span class="era">1978-</span></p>
+    </div>
+  </header>
+  <p class="lens">The best optimization happens at the compiler level - make the same source code run faster without changing it. Build infrastructure that makes all other optimizations possible.</p>
+  <ul class="domains"><li class="domain">Compilers</li><li class="domain">Programming Languages</li><li class="domain">ML Infrastructure</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="yann lecun brilliant mind computational intelligence is learned representations - let the network discover features from data rather than engineering them by hand.  ai/ml computer vision neural networks">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🔷</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Yann LeCun</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1960-</span></p>
+    </div>
+  </header>
+  <p class="lens">Intelligence is learned representations - let the network discover features from data rather than engineering them by hand.</p>
+  <ul class="domains"><li class="domain">AI/ML</li><li class="domain">Computer Vision</li><li class="domain">Neural Networks</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 2 supplementary">4/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="john mccarthy brilliant mind computational every problem is a formalization challenge - describe intelligence precisely enough and machines can simulate it.  ai programming languages lisp time-sharing">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🤔</span>
+    <div class="mind-id">
+      <h3 class="mind-name">John McCarthy</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1927-2011</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a formalization challenge - describe intelligence precisely enough and machines can simulate it.</p>
+  <ul class="domains"><li class="domain">AI</li><li class="domain">Programming Languages</li><li class="domain">LISP</li><li class="domain">Time-Sharing</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 2 supplementary">3/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="warren mcculloch cybernetics &amp; neuroscience computational every neural system must be analyzed for its logical completeness - what propositions can it compute, what are its expressive limits, and does the vocabulary suffice?  cybernetics neuroscience logic">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Warren McCulloch</h3>
+      <p class="mind-role">Cybernetics &amp; Neuroscience · <span class="era">1898-1969</span></p>
+    </div>
+  </header>
+  <p class="lens">Every neural system must be analyzed for its logical completeness - what propositions can it compute, what are its expressive limits, and does the vocabulary suffice?</p>
+  <ul class="domains"><li class="domain">Cybernetics</li><li class="domain">Neuroscience</li><li class="domain">Logic</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="marvin minsky ai &amp; cognitive science computational every intelligence is a society of simpler processes; understanding requires identifying which agent does what.  ai cognitive science computer science">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Marvin Minsky</h3>
+      <p class="mind-role">AI &amp; Cognitive Science · <span class="era">1927-2016</span></p>
+    </div>
+  </header>
+  <p class="lens">Every intelligence is a society of simpler processes; understanding requires identifying which agent does what.</p>
+  <ul class="domains"><li class="domain">AI</li><li class="domain">Cognitive Science</li><li class="domain">Computer Science</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="chuck moore language designer computational everything is too big. factor it. simplify it. if it does not fit in your head, start over. chuck-moore language design compiler construction vlsi design embedded systems">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🔧</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Chuck Moore</h3>
+      <p class="mind-role">Language Designer · <span class="era">1938-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is too big. Factor it. Simplify it. If it does not fit in your head, start over.</p>
+  <ul class="domains"><li class="domain">Language Design</li><li class="domain">Compiler Construction</li><li class="domain">VLSI Design</li><li class="domain">Embedded Systems</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/chuck-moore" title="Copy /chuck-moore">/chuck-moore</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="casey muratori game development &amp; performance programming computational the fastest code is code that doesn&#x27;t exist. every abstraction has a cost; most aren&#x27;t worth it. performance comes from deletion, not addition.  game development performance programming anti-abstraction">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Casey Muratori</h3>
+      <p class="mind-role">Game Development &amp; Performance Programming · <span class="era">1978-</span></p>
+    </div>
+  </header>
+  <p class="lens">The fastest code is code that doesn&#x27;t exist. Every abstraction has a cost; most aren&#x27;t worth it. Performance comes from deletion, not addition.</p>
+  <ul class="domains"><li class="domain">Game Development</li><li class="domain">Performance Programming</li><li class="domain">Anti-Abstraction</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="john von neumann mathematics &amp; computer science computational every system is a formal automaton - define the states, specify the transitions, derive the computational properties.  mathematics computer science physics economics">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">John von Neumann</h3>
+      <p class="mind-role">Mathematics &amp; Computer Science · <span class="era">1903-1957</span></p>
+    </div>
+  </header>
+  <p class="lens">Every system is a formal automaton - define the states, specify the transitions, derive the computational properties.</p>
+  <ul class="domains"><li class="domain">Mathematics</li><li class="domain">Computer Science</li><li class="domain">Physics</li><li class="domain">Economics</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="dennis ritchie brilliant mind computational start with the simplest solution that works - let hardware reality and practical needs drive design, not theoretical ambition.  programming languages operating systems systems programming">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">💻</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Dennis Ritchie</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1941-2011</span></p>
+    </div>
+  </header>
+  <p class="lens">Start with the simplest solution that works - let hardware reality and practical needs drive design, not theoretical ambition.</p>
+  <ul class="domains"><li class="domain">Programming Languages</li><li class="domain">Operating Systems</li><li class="domain">Systems Programming</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 2 supplementary">3/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="guido van rossum brilliant mind computational code is read far more than written - readability and obviousness trump cleverness in every design decision.  programming languages python software engineering">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🐍</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Guido van Rossum</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1956-</span></p>
+    </div>
+  </header>
+  <p class="lens">Code is read far more than written - readability and obviousness trump cleverness in every design decision.</p>
+  <ul class="domains"><li class="domain">Programming Languages</li><li class="domain">Python</li><li class="domain">Software Engineering</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 1 supplementary">3/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="bjarne stroustrup brilliant mind computational every problem is a trade-off between abstraction and hardware reality - the goal is zero-overhead elegance that trusts programmers.  programming languages systems programming c++">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">➕</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Bjarne Stroustrup</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1950-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a trade-off between abstraction and hardware reality - the goal is zero-overhead elegance that trusts programmers.</p>
+  <ul class="domains"><li class="domain">Programming Languages</li><li class="domain">Systems Programming</li><li class="domain">C++</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 2 supplementary">3/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="ilya sutskever brilliant mind computational scale and simplicity unlock emergence - the right architecture at sufficient scale will learn what seems impossible today.  ai/ml neural networks language models">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">✨</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Ilya Sutskever</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1985-</span></p>
+    </div>
+  </header>
+  <p class="lens">Scale and simplicity unlock emergence - the right architecture at sufficient scale will learn what seems impossible today.</p>
+  <ul class="domains"><li class="domain">AI/ML</li><li class="domain">Neural Networks</li><li class="domain">Language Models</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 2 supplementary">4/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="ken thompson operating systems &amp; programming languages computational every system should be simple enough to fit in your head - if you can&#x27;t understand it completely, you can&#x27;t trust it, maintain it, or make it fast.  operating systems programming languages systems programming">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Ken Thompson</h3>
+      <p class="mind-role">Operating Systems &amp; Programming Languages · <span class="era">1943-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every system should be simple enough to fit in your head - if you can&#x27;t understand it completely, you can&#x27;t trust it, maintain it, or make it fast.</p>
+  <ul class="domains"><li class="domain">Operating Systems</li><li class="domain">Programming Languages</li><li class="domain">Systems Programming</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="martin thompson high performance computing &amp; low latency systems computational software performance is governed by physics - memory hierarchies, cpu pipelines, cache coherence protocols. know what the machine is doing at every instruction or you&#x27;re just guessing.  high performance computing low latency systems jvm">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Martin Thompson</h3>
+      <p class="mind-role">High Performance Computing &amp; Low Latency Systems · <span class="era">contemporary</span></p>
+    </div>
+  </header>
+  <p class="lens">Software performance is governed by physics - memory hierarchies, CPU pipelines, cache coherence protocols. Know what the machine is doing at every instruction or you&#x27;re just guessing.</p>
+  <ul class="domains"><li class="domain">High Performance Computing</li><li class="domain">Low Latency Systems</li><li class="domain">JVM</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="linus torvalds creator and principal maintainer of linux computational fix the pothole in front of me. working code beats theoretical elegance. data structures matter more than algorithms. show me the code.  operating systems version control open source">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🐧</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Linus Torvalds</h3>
+      <p class="mind-role">creator and principal maintainer of Linux · <span class="era">1969-</span></p>
+    </div>
+  </header>
+  <p class="lens">Fix the pothole in front of me. Working code beats theoretical elegance. Data structures matter more than algorithms. Show me the code.</p>
+  <ul class="domains"><li class="domain">Operating Systems</li><li class="domain">Version Control</li><li class="domain">Open Source</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 1 supplementary">3/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="hugo touvron ai/ml &amp; language models computational every problem is an architecture decision - what layers encode it, how it scales, what the compute-performance tradeoff looks like.  ai/ml language models open source ai">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Hugo Touvron</h3>
+      <p class="mind-role">AI/ML &amp; Language Models · <span class="era">contemporary</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is an architecture decision - what layers encode it, how it scales, what the compute-performance tradeoff looks like.</p>
+  <ul class="domains"><li class="domain">AI/ML</li><li class="domain">Language Models</li><li class="domain">Open Source AI</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="computational" data-search="alan turing brilliant mind computational everything is computation - what can be mechanically decided, what cannot, and why the distinction matters. turing computer science mathematics logic">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧮</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Alan Turing</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1912-1954</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is computation - what can be mechanically decided, what cannot, and why the distinction matters.</p>
+  <ul class="domains"><li class="domain">Computer Science</li><li class="domain">Mathematics</li><li class="domain">Logic</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/turing" title="Copy /turing">/turing</button>
+    <span class="files" title="4 core documents, 1 supplementary">4/4 +1</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="synthesis">
+  <div class="zone-head">
+    <h2 class="zone-name">synthesis</h2>
+    <p class="zone-blurb">Builders and connectors across domains</p>
+    <span class="zone-n">24</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="synthesis" data-search="christopher alexander architecture &amp; pattern languages synthesis every problem is a pattern language waiting to be discovered - forces in tension that, when properly named and sequenced, resolve themselves into wholeness.  architecture pattern languages systems design">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Christopher Alexander</h3>
+      <p class="mind-role">Architecture &amp; Pattern Languages · <span class="era">1936-2022</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a pattern language waiting to be discovered - forces in tension that, when properly named and sequenced, resolve themselves into wholeness.</p>
+  <ul class="domains"><li class="domain">Architecture</li><li class="domain">Pattern Languages</li><li class="domain">Systems Design</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="the assembler meta-facilitation &amp; multi-perspective synthesis synthesis   meta-facilitation multi-perspective synthesis dialogue">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">The Assembler</h3>
+      <p class="mind-role">Meta-Facilitation &amp; Multi-Perspective Synthesis · <span class="era">meta</span></p>
+    </div>
+  </header>
+  <p class="lens lens-role">Meta-Facilitation &amp; Multi-Perspective Synthesis</p>
+  <ul class="domains"><li class="domain">Meta-Facilitation</li><li class="domain">Multi-Perspective Synthesis</li><li class="domain">Dialogue</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="2 core documents, 0 supplementary">2/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="tim berners-lee web architecture &amp; open standards synthesis everything is an information architecture - name it with a uri, link it with http, and keep it open for everyone. berners-lee computer science web architecture internet open standards">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🌐</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Tim Berners-Lee</h3>
+      <p class="mind-role">Web Architecture &amp; Open Standards · <span class="era">1955-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is an information architecture - name it with a URI, link it with HTTP, and keep it open for everyone.</p>
+  <ul class="domains"><li class="domain">Computer Science</li><li class="domain">Web Architecture</li><li class="domain">Internet</li><li class="domain">Open Standards</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/berners-lee" title="Copy /berners-lee">/berners-lee</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="vint cerf internet architecture &amp; network protocols synthesis everything is a network. check interoperability first. ask who is excluded. design for openness, govern through consensus. cerf internet networking protocol design accessibility">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🌍</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Vint Cerf</h3>
+      <p class="mind-role">Internet Architecture &amp; Network Protocols · <span class="era">1943-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is a network. Check interoperability first. Ask who is excluded. Design for openness, govern through consensus.</p>
+  <ul class="domains"><li class="domain">Internet</li><li class="domain">Networking</li><li class="domain">Protocol Design</li><li class="domain">Accessibility</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/cerf" title="Copy /cerf">/cerf</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="david chaum cryptographic privacy &amp; digital cash synthesis every system is a surveillance architecture or a freedom architecture. ask: who can trace what? what does the adversary observe? make untraceability the default, not the feature. chaum cryptography privacy digital cash">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🔐</span>
+    <div class="mind-id">
+      <h3 class="mind-name">David Chaum</h3>
+      <p class="mind-role">Cryptographic Privacy &amp; Digital Cash · <span class="era">1955-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every system is a surveillance architecture or a freedom architecture. Ask: who can trace what? What does the adversary observe? Make untraceability the default, not the feature.</p>
+  <ul class="domains"><li class="domain">Cryptography</li><li class="domain">Privacy</li><li class="domain">Digital Cash</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/chaum" title="Copy /chaum">/chaum</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="albert einstein brilliant mind synthesis the universe is comprehensible through elegant mathematics - seek the simplest principles that unify phenomena. einstein physics philosophy of science">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">⚛️</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Albert Einstein</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1879-1955</span></p>
+    </div>
+  </header>
+  <p class="lens">The universe is comprehensible through elegant mathematics - seek the simplest principles that unify phenomena.</p>
+  <ul class="domains"><li class="domain">Physics</li><li class="domain">Philosophy of Science</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/einstein" title="Copy /einstein">/einstein</button>
+    <span class="files" title="4 core documents, 2 supplementary">4/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="richard feynman physics &amp; education synthesis every problem must be reducible to first principles that a bright undergraduate could follow - if the explanation requires jargon, the understanding is incomplete. feynman physics education mathematics">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Richard Feynman</h3>
+      <p class="mind-role">Physics &amp; Education · <span class="era">1918-1988</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem must be reducible to first principles that a bright undergraduate could follow - if the explanation requires jargon, the understanding is incomplete.</p>
+  <ul class="domains"><li class="domain">Physics</li><li class="domain">Education</li><li class="domain">Mathematics</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/feynman" title="Copy /feynman">/feynman</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="karl friston neuroscience &amp; computational theory synthesis every system minimizes variational free energy - perception is inference, action is active inference, learning is model optimization.  neuroscience computational theory free energy principle">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Karl Friston</h3>
+      <p class="mind-role">Neuroscience &amp; Computational Theory · <span class="era">1959-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every system minimizes variational free energy - perception is inference, action is active inference, learning is model optimization.</p>
+  <ul class="domains"><li class="domain">Neuroscience</li><li class="domain">Computational Theory</li><li class="domain">Free Energy Principle</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="buckminster fuller systems theory &amp; architecture synthesis every problem is a geometry problem - what is the essential structure, where are the leverage points, and how do we achieve maximum performance with minimum resources?  systems theory architecture design science">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Buckminster Fuller</h3>
+      <p class="mind-role">Systems Theory &amp; Architecture · <span class="era">1895-1983</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a geometry problem - what is the essential structure, where are the leverage points, and how do we achieve maximum performance with minimum resources?</p>
+  <ul class="domains"><li class="domain">Systems Theory</li><li class="domain">Architecture</li><li class="domain">Design Science</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="demis hassabis polymath synthesis intelligence is the master key - understand it from first principles, benchmark it through games, then deploy it to solve everything else.  ai deep learning cognitive neuroscience game ai">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🎮</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Demis Hassabis</h3>
+      <p class="mind-role">polymath · <span class="era">1976-</span></p>
+    </div>
+  </header>
+  <p class="lens">Intelligence is the master key - understand it from first principles, benchmark it through games, then deploy it to solve everything else.</p>
+  <ul class="domains"><li class="domain">AI</li><li class="domain">Deep Learning</li><li class="domain">Cognitive Neuroscience</li><li class="domain">Game AI</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 1 supplementary">3/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="jensen huang co-founder and ceo of nvidia corporation synthesis every problem is a parallelization opportunity - cpus are legacy, accelerated computing is inevitable, cuda is the moat.  gpu architecture ai infrastructure semiconductors business strategy">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">💚</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Jensen Huang</h3>
+      <p class="mind-role">co-founder and CEO of NVIDIA Corporation · <span class="era">1963-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a parallelization opportunity - CPUs are legacy, accelerated computing is inevitable, CUDA is the moat.</p>
+  <ul class="domains"><li class="domain">GPU Architecture</li><li class="domain">AI Infrastructure</li><li class="domain">Semiconductors</li><li class="domain">Business Strategy</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 1 supplementary">3/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="steve jobs product visionary synthesis every problem is a design problem - strip away complexity until only the essential remains, then make it insanely great.  product design technology vision consumer electronics brand building">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🍎</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Steve Jobs</h3>
+      <p class="mind-role">Product Visionary · <span class="era">1955-2011</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a design problem - strip away complexity until only the essential remains, then make it insanely great.</p>
+  <ul class="domains"><li class="domain">Product Design</li><li class="domain">Technology Vision</li><li class="domain">Consumer Electronics</li><li class="domain">Brand Building</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 1 supplementary">3/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="andrej karpathy slovak-canadian computer scientist synthesis build it from scratch to understand it - neural networks are software 2.0 that learns programs from data. karpathy ai/ml neural networks education">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🤖</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Andrej Karpathy</h3>
+      <p class="mind-role">Slovak-Canadian computer scientist · <span class="era">1986-</span></p>
+    </div>
+  </header>
+  <p class="lens">Build it from scratch to understand it - neural networks are Software 2.0 that learns programs from data.</p>
+  <ul class="domains"><li class="domain">AI/ML</li><li class="domain">Neural Networks</li><li class="domain">Education</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/karpathy" title="Copy /karpathy">/karpathy</button>
+    <span class="files" title="4 core documents, 2 supplementary">4/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="alan kay computer science &amp; education synthesis every system is a compromise with the past - what would we build if we started from scratch, knowing what we know now, freed from backward compatibility with yesterday&#x27;s mistakes?  computer science education object-oriented programming">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Alan Kay</h3>
+      <p class="mind-role">Computer Science &amp; Education · <span class="era">1940-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every system is a compromise with the past - what would we build if we started from scratch, knowing what we know now, freed from backward compatibility with yesterday&#x27;s mistakes?</p>
+  <ul class="domains"><li class="domain">Computer Science</li><li class="domain">Education</li><li class="domain">Object-Oriented Programming</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="fei-fei li chinese-born american computer scientist and the creator ... synthesis ai must be human-centered - technology serves humanity, shaped by diverse perspectives, measured by benefit to all.  computer vision ai/ml ai ethics education">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">👁️</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Fei-Fei Li</h3>
+      <p class="mind-role">Chinese-born American computer scientist and the creator ... · <span class="era">1976-</span></p>
+    </div>
+  </header>
+  <p class="lens">AI must be human-centered - technology serves humanity, shaped by diverse perspectives, measured by benefit to all.</p>
+  <ul class="domains"><li class="domain">Computer Vision</li><li class="domain">AI/ML</li><li class="domain">AI Ethics</li><li class="domain">Education</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 1 supplementary">3/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="ada lovelace computer science &amp; mathematics synthesis every system is an analytical engine waiting to be revealed - what operations does it truly encode, and what symphonies might it compose beyond mere calculation?  computer science mathematics visionary computing">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Ada Lovelace</h3>
+      <p class="mind-role">Computer Science &amp; Mathematics · <span class="era">1815-1852</span></p>
+    </div>
+  </header>
+  <p class="lens">Every system is an Analytical Engine waiting to be revealed - what operations does it truly encode, and what symphonies might it compose beyond mere calculation?</p>
+  <ul class="domains"><li class="domain">Computer Science</li><li class="domain">Mathematics</li><li class="domain">Visionary Computing</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="david marr computational neuroscience &amp; vision synthesis every explanation must specify which level it addresses: computational, algorithmic, or implementational.  computational neuroscience vision cognitive science">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">David Marr</h3>
+      <p class="mind-role">Computational Neuroscience &amp; Vision · <span class="era">1945-1980</span></p>
+    </div>
+  </header>
+  <p class="lens">Every explanation must specify which level it addresses: computational, algorithmic, or implementational.</p>
+  <ul class="domains"><li class="domain">Computational Neuroscience</li><li class="domain">Vision</li><li class="domain">Cognitive Science</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="elon musk serial entrepreneur and engineer synthesis first principles - if physics permits it, it&#x27;s an engineering problem; throw resources at the bottleneck.  entrepreneurship aerospace electric vehicles ai">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🚀</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Elon Musk</h3>
+      <p class="mind-role">serial entrepreneur and engineer · <span class="era">1971-</span></p>
+    </div>
+  </header>
+  <p class="lens">First principles - if physics permits it, it&#x27;s an engineering problem; throw resources at the bottleneck.</p>
+  <ul class="domains"><li class="domain">Entrepreneurship</li><li class="domain">Aerospace</li><li class="domain">Electric Vehicles</li><li class="domain">AI</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 1 supplementary">3/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="andrew ng pioneering computer scientist synthesis ai is the new electricity - a transformative technology that should be accessible to everyone across every industry.  ai/ml deep learning education robotics">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">📊</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Andrew Ng</h3>
+      <p class="mind-role">pioneering computer scientist · <span class="era">1976-</span></p>
+    </div>
+  </header>
+  <p class="lens">AI is the new electricity - a transformative technology that should be accessible to everyone across every industry.</p>
+  <ul class="domains"><li class="domain">AI/ML</li><li class="domain">Deep Learning</li><li class="domain">Education</li><li class="domain">Robotics</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 1 supplementary">3/4 +1</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="j. robert oppenheimer physics &amp; project management synthesis every problem is an orchestration challenge - which minds for which sub-problems, what dependencies exist, where are the critical paths and single points of failure.  physics project management scientific leadership">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">J. Robert Oppenheimer</h3>
+      <p class="mind-role">Physics &amp; Project Management · <span class="era">1904-1967</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is an orchestration challenge - which minds for which sub-problems, what dependencies exist, where are the critical paths and single points of failure.</p>
+  <ul class="domains"><li class="domain">Physics</li><li class="domain">Project Management</li><li class="domain">Scientific Leadership</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="terrence sejnowski computational neuroscience &amp; ai/ml synthesis every neural computation exists in both mathematical and biological instantiation - understanding requires mapping between energy landscapes, oscillatory dynamics, and learning rules across both domains.  computational neuroscience ai/ml neural networks">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Terrence Sejnowski</h3>
+      <p class="mind-role">Computational Neuroscience &amp; AI/ML · <span class="era">1947-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every neural computation exists in both mathematical and biological instantiation - understanding requires mapping between energy landscapes, oscillatory dynamics, and learning rules across both domains.</p>
+  <ul class="domains"><li class="domain">Computational Neuroscience</li><li class="domain">AI/ML</li><li class="domain">Neural Networks</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="nikola tesla engineering &amp; physics synthesis every problem can be visualized as a complete dynamic system; experimental results are the ultimate arbiter, and theory must follow what nature demonstrates.  engineering physics invention">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Nikola Tesla</h3>
+      <p class="mind-role">Engineering &amp; Physics · <span class="era">1856-1943</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem can be visualized as a complete dynamic system; experimental results are the ultimate arbiter, and theory must follow what nature demonstrates.</p>
+  <ul class="domains"><li class="domain">Engineering</li><li class="domain">Physics</li><li class="domain">Invention</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="leonardo da vinci art &amp; science synthesis every problem is a system of forces seeking equilibrium, visible when properly diagrammed.  art science engineering polymath">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Leonardo da Vinci</h3>
+      <p class="mind-role">Art &amp; Science · <span class="era">1452-1519</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a system of forces seeking equilibrium, visible when properly diagrammed.</p>
+  <ul class="domains"><li class="domain">Art</li><li class="domain">Science</li><li class="domain">Engineering</li><li class="domain">Polymath</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="synthesis" data-search="norbert wiener cybernetics &amp; mathematics synthesis every system is a feedback loop; the central questions are stability, damping, oscillation, and what information flows where to maintain control.  cybernetics mathematics control theory">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Norbert Wiener</h3>
+      <p class="mind-role">Cybernetics &amp; Mathematics · <span class="era">1894-1964</span></p>
+    </div>
+  </header>
+  <p class="lens">Every system is a feedback loop; the central questions are stability, damping, oscillation, and what information flows where to maintain control.</p>
+  <ul class="domains"><li class="domain">Cybernetics</li><li class="domain">Mathematics</li><li class="domain">Control Theory</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="empirical">
+  <div class="zone-head">
+    <h2 class="zone-name">empirical</h2>
+    <p class="zone-blurb">Measurement, experiment, evidence</p>
+    <span class="zone-n">8</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="empirical" data-search="santiago ramon y cajal neuroscience &amp; neuroanatomy empirical every claim must be anchored in observable structure - the truth lies in what can be seen under the microscope, drawn with precision, and verified by repeated observation.  neuroscience neuroanatomy histology">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Santiago Ramon y Cajal</h3>
+      <p class="mind-role">Neuroscience &amp; Neuroanatomy · <span class="era">1852-1934</span></p>
+    </div>
+  </header>
+  <p class="lens">Every claim must be anchored in observable structure - the truth lies in what can be seen under the microscope, drawn with precision, and verified by repeated observation.</p>
+  <ul class="domains"><li class="domain">Neuroscience</li><li class="domain">Neuroanatomy</li><li class="domain">Histology</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="empirical" data-search="marie curie physics &amp; chemistry empirical every claim is a hypothesis requiring systematic experimental validation across sufficient trials, controls, and conditions before acceptance.  physics chemistry experimental science">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Marie Curie</h3>
+      <p class="mind-role">Physics &amp; Chemistry · <span class="era">1867-1934</span></p>
+    </div>
+  </header>
+  <p class="lens">Every claim is a hypothesis requiring systematic experimental validation across sufficient trials, controls, and conditions before acceptance.</p>
+  <ul class="domains"><li class="domain">Physics</li><li class="domain">Chemistry</li><li class="domain">Experimental Science</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="empirical" data-search="brendan gregg systems performance &amp; observability empirical performance analysis is forensic science - never guess what&#x27;s slow, always measure. the bottleneck is never where you think it is until you&#x27;ve profiled it.  systems performance observability linux">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Brendan Gregg</h3>
+      <p class="mind-role">Systems Performance &amp; Observability · <span class="era">1977-</span></p>
+    </div>
+  </header>
+  <p class="lens">Performance analysis is forensic science - never guess what&#x27;s slow, always measure. The bottleneck is never where you think it is until you&#x27;ve profiled it.</p>
+  <ul class="domains"><li class="domain">Systems Performance</li><li class="domain">Observability</li><li class="domain">Linux</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="empirical" data-search="michael hasselmo neuroscience &amp; memory systems empirical every cognitive phenomenon emerges from the interplay of neural circuits, neuromodulation, and oscillatory dynamics—attention and memory are not abstract but mechanistic.  neuroscience memory systems computational neuroscience">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Michael Hasselmo</h3>
+      <p class="mind-role">Neuroscience &amp; Memory Systems · <span class="era">contemporary</span></p>
+    </div>
+  </header>
+  <p class="lens">Every cognitive phenomenon emerges from the interplay of neural circuits, neuromodulation, and oscillatory dynamics—attention and memory are not abstract but mechanistic.</p>
+  <ul class="domains"><li class="domain">Neuroscience</li><li class="domain">Memory Systems</li><li class="domain">Computational Neuroscience</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="empirical" data-search="donald hebb neuroscience &amp; psychology empirical learning is correlation-based strengthening - what fires together wires together.  neuroscience psychology learning theory">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Donald Hebb</h3>
+      <p class="mind-role">Neuroscience &amp; Psychology · <span class="era">1904-1985</span></p>
+    </div>
+  </header>
+  <p class="lens">Learning is correlation-based strengthening - what fires together wires together.</p>
+  <ul class="domains"><li class="domain">Neuroscience</li><li class="domain">Psychology</li><li class="domain">Learning Theory</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="empirical" data-search="eric kandel neuroscience &amp; memory empirical learning must be explained at the molecular level - what proteins, what synthesis, what structural change?  neuroscience memory molecular biology">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Eric Kandel</h3>
+      <p class="mind-role">Neuroscience &amp; Memory · <span class="era">1929-</span></p>
+    </div>
+  </header>
+  <p class="lens">Learning must be explained at the molecular level - what proteins, what synthesis, what structural change?</p>
+  <ul class="domains"><li class="domain">Neuroscience</li><li class="domain">Memory</li><li class="domain">Molecular Biology</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="empirical" data-search="ivan pavlov psychology &amp; physiology empirical every learning phenomenon is a conditioning process - what is the unconditioned stimulus, what becomes conditioned, and what are the pairing dynamics?  psychology physiology learning theory">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Ivan Pavlov</h3>
+      <p class="mind-role">Psychology &amp; Physiology · <span class="era">1849-1936</span></p>
+    </div>
+  </header>
+  <p class="lens">Every learning phenomenon is a conditioning process - what is the unconditioned stimulus, what becomes conditioned, and what are the pairing dynamics?</p>
+  <ul class="domains"><li class="domain">Psychology</li><li class="domain">Physiology</li><li class="domain">Learning Theory</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="empirical" data-search="b.f. skinner psychology &amp; behaviorism empirical every phenomenon is behavior shaped by reinforcement schedules and environmental consequences.  psychology behaviorism learning theory">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">B.F. Skinner</h3>
+      <p class="mind-role">Psychology &amp; Behaviorism · <span class="era">1904-1990</span></p>
+    </div>
+  </header>
+  <p class="lens">Every phenomenon is behavior shaped by reinforcement schedules and environmental consequences.</p>
+  <ul class="domains"><li class="domain">Psychology</li><li class="domain">Behaviorism</li><li class="domain">Learning Theory</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="analysis">
+  <div class="zone-head">
+    <h2 class="zone-name">analysis</h2>
+    <p class="zone-blurb">Decomposition and rigorous critique</p>
+    <span class="zone-n">8</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="analysis" data-search="kurt godel mathematics &amp; logic analysis every system has inherent limits - what cannot be proven, what cannot be decided, where self-reference creates necessary incompleteness.  mathematics logic philosophy">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Kurt Godel</h3>
+      <p class="mind-role">Mathematics &amp; Logic · <span class="era">1906-1978</span></p>
+    </div>
+  </header>
+  <p class="lens">Every system has inherent limits - what cannot be proven, what cannot be decided, where self-reference creates necessary incompleteness.</p>
+  <ul class="domains"><li class="domain">Mathematics</li><li class="domain">Logic</li><li class="domain">Philosophy</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="analysis" data-search="stuart haber cryptographic timestamping &amp; blockchain foundations analysis everything is a trust problem. identify what must be trusted. minimize it. replace institutional assurance with cryptographic proof. link records so tampering is computationally infeasible. haber cryptography blockchain timestamping">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">⛓️</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Stuart Haber</h3>
+      <p class="mind-role">Cryptographic Timestamping &amp; Blockchain Foundations · <span class="era">1954-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is a trust problem. Identify what must be trusted. Minimize it. Replace institutional assurance with cryptographic proof. Link records so tampering is computationally infeasible.</p>
+  <ul class="domains"><li class="domain">Cryptography</li><li class="domain">Blockchain</li><li class="domain">Timestamping</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/haber" title="Copy /haber">/haber</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="analysis" data-search="donald knuth brilliant mind analysis every problem is an algorithm awaiting rigorous analysis - beauty and correctness are inseparable.  algorithm analysis digital typography programming">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">📚</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Donald Knuth</h3>
+      <p class="mind-role">Brilliant Mind · <span class="era">1938-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is an algorithm awaiting rigorous analysis - beauty and correctness are inseparable.</p>
+  <ul class="domains"><li class="domain">Algorithm Analysis</li><li class="domain">Digital Typography</li><li class="domain">Programming</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 2 supplementary">3/4 +2</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="analysis" data-search="leslie lamport distributed systems &amp; formal methods analysis everything is a specification problem. define what correct means before you build anything. distributed systems fail because people trust intuition instead of proof. time is ordering, not clocks. lamport distributed systems formal methods computer science">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">⏰</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Leslie Lamport</h3>
+      <p class="mind-role">Distributed Systems &amp; Formal Methods · <span class="era">1941-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is a specification problem. Define what correct means before you build anything. Distributed systems fail because people trust intuition instead of proof. Time is ordering, not clocks.</p>
+  <ul class="domains"><li class="domain">Distributed Systems</li><li class="domain">Formal Methods</li><li class="domain">Computer Science</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/lamport" title="Copy /lamport">/lamport</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="analysis" data-search="barbara liskov data abstraction &amp; program correctness analysis all software complexity is managed through abstraction - define the interface, hide the representation, prove the behavior, build on contracts. liskov programming languages software engineering data abstraction">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🏗️</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Barbara Liskov</h3>
+      <p class="mind-role">Data Abstraction &amp; Program Correctness · <span class="era">1939-</span></p>
+    </div>
+  </header>
+  <p class="lens">All software complexity is managed through abstraction - define the interface, hide the representation, prove the behavior, build on contracts.</p>
+  <ul class="domains"><li class="domain">Programming Languages</li><li class="domain">Software Engineering</li><li class="domain">Data Abstraction</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/liskov" title="Copy /liskov">/liskov</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="analysis" data-search="john nash mathematics &amp; game theory analysis every interaction is a game - what are the players&#x27; strategies, what are the payoffs, and where is the equilibrium?  mathematics game theory economics">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">John Nash</h3>
+      <p class="mind-role">Mathematics &amp; Game Theory · <span class="era">1928-2015</span></p>
+    </div>
+  </header>
+  <p class="lens">Every interaction is a game - what are the players&#x27; strategies, what are the payoffs, and where is the equilibrium?</p>
+  <ul class="domains"><li class="domain">Mathematics</li><li class="domain">Game Theory</li><li class="domain">Economics</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="analysis" data-search="claude shannon information theorist analysis everything is information. measure the entropy. find the channel capacity. derive the fundamental limit before optimizing. shannon-app-agent information theory mathematics engineering">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">📐</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Claude Shannon</h3>
+      <p class="mind-role">Information Theorist · <span class="era">1916-2001</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is information. Measure the entropy. Find the channel capacity. Derive the fundamental limit before optimizing.</p>
+  <ul class="domains"><li class="domain">Information Theory</li><li class="domain">Mathematics</li><li class="domain">Engineering</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/shannon-app-agent" title="Copy /shannon-app-agent">/shannon-app-agent</button>
+    <span class="files" title="2 core documents, 3 supplementary">2/4 +3</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="analysis" data-search="herbert simon ai &amp; economics analysis every problem is a search through a space of alternatives under constraints - the question is always what heuristics make the search tractable.  ai economics psychology decision theory">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Herbert Simon</h3>
+      <p class="mind-role">AI &amp; Economics · <span class="era">1916-2001</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a search through a space of alternatives under constraints - the question is always what heuristics make the search tractable.</p>
+  <ul class="domains"><li class="domain">AI</li><li class="domain">Economics</li><li class="domain">Psychology</li><li class="domain">Decision Theory</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="analytical">
+  <div class="zone-head">
+    <h2 class="zone-name">analytical</h2>
+    <p class="zone-blurb">Derivation, estimators, bounded claims</p>
+    <span class="zone-n">3</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="analytical" data-search="pat hanrahan rendering systems &amp; shading languages analytical the durable contribution is almost never the algorithm; it is the abstraction boundary. decide what the scene description says and what the renderer decides, and you have determined what is possible for everyone downstream for the next decade. hanrahan rendering architecture shading languages gpu computing data visualization">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">💡</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Pat Hanrahan</h3>
+      <p class="mind-role">Rendering Systems &amp; Shading Languages · <span class="era">1955-</span></p>
+    </div>
+  </header>
+  <p class="lens">The durable contribution is almost never the algorithm; it is the abstraction boundary. Decide what the scene description says and what the renderer decides, and you have determined what is possible for everyone downstream for the next decade.</p>
+  <ul class="domains"><li class="domain">Rendering Architecture</li><li class="domain">Shading Languages</li><li class="domain">GPU Computing</li><li class="domain">Data Visualization</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/hanrahan" title="Copy /hanrahan">/hanrahan</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="analytical" data-search="julius o. smith iii digital audio signal processing &amp; physical modeling analytical every audio operation is a filter or a transform with known properties. window length, hop size, pole placement and group delay are not tuning parameters; they are the design, and the trade-offs among them are mathematical facts rather than matters of taste. julius-smith digital signal processing physical modeling synthesis spectral analysis audio engineering">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🎚</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Julius O. Smith III</h3>
+      <p class="mind-role">Digital Audio Signal Processing &amp; Physical Modeling · <span class="era">1953-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every audio operation is a filter or a transform with known properties. Window length, hop size, pole placement and group delay are not tuning parameters; they are the design, and the trade-offs among them are mathematical facts rather than matters of taste.</p>
+  <ul class="domains"><li class="domain">Digital Signal Processing</li><li class="domain">Physical Modeling Synthesis</li><li class="domain">Spectral Analysis</li><li class="domain">Audio Engineering</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/julius-smith" title="Copy /julius-smith">/julius-smith</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="analytical" data-search="eric veach light transport &amp; monte carlo rendering analytical every image is an integral estimated from samples, and every sampling strategy has a variance you can write down. the question is never &quot;is it noisy?&quot; but &quot;which estimator is wasting my samples, and what does the better one cost?&quot; veach computer graphics monte carlo methods light transport auction systems">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🎲</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Eric Veach</h3>
+      <p class="mind-role">Light Transport &amp; Monte Carlo Rendering · <span class="era">fl. 1995-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every image is an integral estimated from samples, and every sampling strategy has a variance you can write down. The question is never &quot;is it noisy?&quot; but &quot;which estimator is wasting my samples, and what does the better one cost?&quot;</p>
+  <ul class="domains"><li class="domain">Computer Graphics</li><li class="domain">Monte Carlo Methods</li><li class="domain">Light Transport</li><li class="domain">Auction Systems</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/veach" title="Copy /veach">/veach</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="philosophical">
+  <div class="zone-head">
+    <h2 class="zone-name">philosophical</h2>
+    <p class="zone-blurb">First questions, values, generative stance</p>
+    <span class="zone-n">7</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="philosophical" data-search="mikhail bakhtin literary theory &amp; philosophy philosophical every act of understanding is dialogic—meaning is not transmitted but co-constructed in the living space between voices.  literary theory philosophy linguistics">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Mikhail Bakhtin</h3>
+      <p class="mind-role">Literary Theory &amp; Philosophy · <span class="era">1895-1975</span></p>
+    </div>
+  </header>
+  <p class="lens">Every act of understanding is dialogic—meaning is not transmitted but co-constructed in the living space between voices.</p>
+  <ul class="domains"><li class="domain">Literary Theory</li><li class="domain">Philosophy</li><li class="domain">Linguistics</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="philosophical" data-search="daniel dennett philosophy of mind &amp; cognitive science philosophical every claim about mind must survive the question &quot;useful fiction or genuine phenomenon?&quot;  philosophy of mind cognitive science consciousness">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Daniel Dennett</h3>
+      <p class="mind-role">Philosophy of Mind &amp; Cognitive Science · <span class="era">1942-2024</span></p>
+    </div>
+  </header>
+  <p class="lens">Every claim about mind must survive the question &quot;useful fiction or genuine phenomenon?&quot;</p>
+  <ul class="domains"><li class="domain">Philosophy of Mind</li><li class="domain">Cognitive Science</li><li class="domain">Consciousness</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="philosophical" data-search="brian eno generative systems &amp; ambient composition philosophical do not make the thing; make the system that makes the thing, then cultivate it. the composer&#x27;s job is choosing constraints and a starting condition, and then being genuinely willing to be surprised. eno generative music ambient composition systems art record production">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🌀</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Brian Eno</h3>
+      <p class="mind-role">Generative Systems &amp; Ambient Composition · <span class="era">1948-</span></p>
+    </div>
+  </header>
+  <p class="lens">Do not make the thing; make the system that makes the thing, then cultivate it. The composer&#x27;s job is choosing constraints and a starting condition, and then being genuinely willing to be surprised.</p>
+  <ul class="domains"><li class="domain">Generative Music</li><li class="domain">Ambient Composition</li><li class="domain">Systems Art</li><li class="domain">Record Production</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/eno" title="Copy /eno">/eno</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="philosophical" data-search="paulo freire education &amp; philosophy philosophical every problem is a manifestation of power relations - who names reality, who is silenced, and how authentic dialogue can transform both the learner and their world.  education philosophy critical pedagogy">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Paulo Freire</h3>
+      <p class="mind-role">Education &amp; Philosophy · <span class="era">1921-1997</span></p>
+    </div>
+  </header>
+  <p class="lens">Every problem is a manifestation of power relations - who names reality, who is silenced, and how authentic dialogue can transform both the learner and their world.</p>
+  <ul class="domains"><li class="domain">Education</li><li class="domain">Philosophy</li><li class="domain">Critical Pedagogy</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="philosophical" data-search="douglas hofstadter cognitive science &amp; ai philosophical every system that can represent itself contains strange loops waiting to emerge.  cognitive science ai mathematics philosophy">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Douglas Hofstadter</h3>
+      <p class="mind-role">Cognitive Science &amp; AI · <span class="era">1945-</span></p>
+    </div>
+  </header>
+  <p class="lens">Every system that can represent itself contains strange loops waiting to emerge.</p>
+  <ul class="domains"><li class="domain">Cognitive Science</li><li class="domain">AI</li><li class="domain">Mathematics</li><li class="domain">Philosophy</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="philosophical" data-search="thomas kuhn philosophy of science &amp; history of science philosophical every field operates within a paradigm that determines what counts as a problem, a solution, and evidence - most crises come from paradigm exhaustion, not puzzle-solving failure.  philosophy of science history of science">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Thomas Kuhn</h3>
+      <p class="mind-role">Philosophy of Science &amp; History of Science · <span class="era">1922-1996</span></p>
+    </div>
+  </header>
+  <p class="lens">Every field operates within a paradigm that determines what counts as a problem, a solution, and evidence - most crises come from paradigm exhaustion, not puzzle-solving failure.</p>
+  <ul class="domains"><li class="domain">Philosophy of Science</li><li class="domain">History of Science</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="philosophical" data-search="socrates philosophy &amp; ethics philosophical   philosophy ethics dialectic">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🧠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Socrates</h3>
+      <p class="mind-role">Philosophy &amp; Ethics · <span class="era">470-399 BCE</span></p>
+    </div>
+  </header>
+  <p class="lens lens-role">Philosophy &amp; Ethics</p>
+  <ul class="domains"><li class="domain">Philosophy</li><li class="domain">Ethics</li><li class="domain">Dialectic</li></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="engineering">
+  <div class="zone-head">
+    <h2 class="zone-name">engineering</h2>
+    <p class="zone-blurb">Tools, systems and the people who ship with them</p>
+    <span class="zone-n">6</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="engineering" data-search="margaret hamilton software engineering &amp; ultra-reliable systems engineering software is engineering. every system must be defined completely, every failure mode anticipated, every error prevented by design - not discovered by testing. hamilton software engineering systems design aerospace">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🚀</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Margaret Hamilton</h3>
+      <p class="mind-role">Software Engineering &amp; Ultra-Reliable Systems · <span class="era">1936-</span></p>
+    </div>
+  </header>
+  <p class="lens">Software is engineering. Every system must be defined completely, every failure mode anticipated, every error prevented by design - not discovered by testing.</p>
+  <ul class="domains"><li class="domain">Software Engineering</li><li class="domain">Systems Design</li><li class="domain">Aerospace</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/hamilton" title="Copy /hamilton">/hamilton</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="engineering" data-search="bob kahn network architecture &amp; infrastructure design engineering everything is architecture. identify the structural constraints. define the interfaces. design for interconnection of heterogeneous systems. infrastructure done right becomes invisible. kahn internet networking infrastructure protocol design">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🔌</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Bob Kahn</h3>
+      <p class="mind-role">Network Architecture &amp; Infrastructure Design · <span class="era">1938-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is architecture. Identify the structural constraints. Define the interfaces. Design for interconnection of heterogeneous systems. Infrastructure done right becomes invisible.</p>
+  <ul class="domains"><li class="domain">Internet</li><li class="domain">Networking</li><li class="domain">Infrastructure</li><li class="domain">Protocol Design</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/kahn" title="Copy /kahn">/kahn</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="engineering" data-search="ralph merkle hash-based cryptography &amp; verification structures engineering everything is a verification problem. find the data structure that eliminates the trust assumption. if you can hash it, you can prove it. build from leaves to root. merkle cryptography data structures nanotechnology">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🌳</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Ralph Merkle</h3>
+      <p class="mind-role">Hash-Based Cryptography &amp; Verification Structures · <span class="era">1952-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is a verification problem. Find the data structure that eliminates the trust assumption. If you can hash it, you can prove it. Build from leaves to root.</p>
+  <ul class="domains"><li class="domain">Cryptography</li><li class="domain">Data Structures</li><li class="domain">Nanotechnology</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/merkle" title="Copy /merkle">/merkle</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="engineering" data-search="miller puckette real-time computer music &amp; signal graphs engineering everything is a graph of signals with explicit rates. some values change every sample; some change every block or every event. knowing which is which, and where the boundary sits, determines whether a system is musical or merely audio-shaped. puckette computer music digital signal processing real-time systems music software">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🎛</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Miller Puckette</h3>
+      <p class="mind-role">Real-Time Computer Music &amp; Signal Graphs · <span class="era">1959-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything is a graph of signals with explicit rates. Some values change every sample; some change every block or every event. Knowing which is which, and where the boundary sits, determines whether a system is musical or merely audio-shaped.</p>
+  <ul class="domains"><li class="domain">Computer Music</li><li class="domain">Digital Signal Processing</li><li class="domain">Real-Time Systems</li><li class="domain">Music Software</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/puckette" title="Copy /puckette">/puckette</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="engineering" data-search="iñigo quílez procedural graphics &amp; distance fields engineering there is no geometry, only functions. if you can write a function that returns the distance to a surface, you can render it, light it, deform it, repeat it and differentiate it — without ever storing a single vertex. quilez computer graphics procedural modeling shaders demoscene">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">📐</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Iñigo Quílez</h3>
+      <p class="mind-role">Procedural Graphics &amp; Distance Fields · <span class="era">fl. 2001-</span></p>
+    </div>
+  </header>
+  <p class="lens">There is no geometry, only functions. If you can write a function that returns the distance to a surface, you can render it, light it, deform it, repeat it and differentiate it — without ever storing a single vertex.</p>
+  <ul class="domains"><li class="domain">Computer Graphics</li><li class="domain">Procedural Modeling</li><li class="domain">Shaders</li><li class="domain">Demoscene</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/quilez" title="Copy /quilez">/quilez</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="engineering" data-search="ton roosendaal blender &amp; open creative tooling engineering a creative tool is only proven by someone finishing real work with it. architecture, features and release schedules are all judged against a production that must ship, which is why you make the film yourself and let it break the software. roosendaal 3d software architecture open source governance animation production creative tooling">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🟠</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Ton Roosendaal</h3>
+      <p class="mind-role">Blender &amp; Open Creative Tooling · <span class="era">1960-</span></p>
+    </div>
+  </header>
+  <p class="lens">A creative tool is only proven by someone finishing real work with it. Architecture, features and release schedules are all judged against a production that must ship, which is why you make the film yourself and let it break the software.</p>
+  <ul class="domains"><li class="domain">3D Software Architecture</li><li class="domain">Open Source Governance</li><li class="domain">Animation Production</li><li class="domain">Creative Tooling</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/roosendaal" title="Copy /roosendaal">/roosendaal</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="experimental">
+  <div class="zone-head">
+    <h2 class="zone-name">experimental</h2>
+    <p class="zone-blurb">Material experiment and perceptual craft</p>
+    <span class="zone-n">3</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="experimental" data-search="ken perlin procedural noise &amp; computer animation experimental nature does not look random, it looks *coherently* random — correlated at every scale. give an artist a function with that property and a few comprehensible knobs, and they will produce worlds you could not have stored. perlin computer graphics procedural generation computer animation human-computer interaction">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🌫</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Ken Perlin</h3>
+      <p class="mind-role">Procedural Noise &amp; Computer Animation · <span class="era">1955-</span></p>
+    </div>
+  </header>
+  <p class="lens">Nature does not look random, it looks *coherently* random — correlated at every scale. Give an artist a function with that property and a few comprehensible knobs, and they will produce worlds you could not have stored.</p>
+  <ul class="domains"><li class="domain">Computer Graphics</li><li class="domain">Procedural Generation</li><li class="domain">Computer Animation</li><li class="domain">Human-Computer Interaction</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/perlin" title="Copy /perlin">/perlin</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="experimental" data-search="curtis roads granular synthesis &amp; microsound experimental music exists simultaneously on nine time scales, from the infinitesimal to the supra-musical. most confusion about rhythm, texture or form is a scale confusion: a question asked at the grain level and answered at the meso level, or the reverse. roads electronic music composition granular synthesis sound design computer music theory">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">⏳</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Curtis Roads</h3>
+      <p class="mind-role">Granular Synthesis &amp; Microsound · <span class="era">1951-</span></p>
+    </div>
+  </header>
+  <p class="lens">Music exists simultaneously on nine time scales, from the infinitesimal to the supra-musical. Most confusion about rhythm, texture or form is a scale confusion: a question asked at the grain level and answered at the meso level, or the reverse.</p>
+  <ul class="domains"><li class="domain">Electronic Music Composition</li><li class="domain">Granular Synthesis</li><li class="domain">Sound Design</li><li class="domain">Computer Music Theory</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/roads" title="Copy /roads">/roads</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="experimental" data-search="troy sobotka image formation &amp; view transforms experimental an image is not data that happens to be displayed; it is *formed*. the transform from scene-referred radiometric values to a display is where a picture is made or ruined, and almost everyone treats that transform as an afterthought or a preference. sobotka color science image formation digital imaging compositing">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🎞</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Troy Sobotka</h3>
+      <p class="mind-role">Image Formation &amp; View Transforms · <span class="era">fl. 2010-</span></p>
+    </div>
+  </header>
+  <p class="lens">An image is not data that happens to be displayed; it is *formed*. The transform from scene-referred radiometric values to a display is where a picture is made or ruined, and almost everyone treats that transform as an afterthought or a preference.</p>
+  <ul class="domains"><li class="domain">Color Science</li><li class="domain">Image Formation</li><li class="domain">Digital Imaging</li><li class="domain">Compositing</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/sobotka" title="Copy /sobotka">/sobotka</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="pedagogical">
+  <div class="zone-head">
+    <h2 class="zone-name">pedagogical</h2>
+    <p class="zone-blurb">Teaching as the primary act</p>
+    <span class="zone-n">2</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="pedagogical" data-search="casey reas software as artistic medium pedagogical the work is the written rule set, not the image it produced. a piece is a short text describing elements and their conditions; the picture is one performance of it, and the rules should be simple enough to read aloud. reas software art generative design creative coding design education">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🖼</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Casey Reas</h3>
+      <p class="mind-role">Software as Artistic Medium · <span class="era">1972-</span></p>
+    </div>
+  </header>
+  <p class="lens">The work is the written rule set, not the image it produced. A piece is a short text describing elements and their conditions; the picture is one performance of it, and the rules should be simple enough to read aloud.</p>
+  <ul class="domains"><li class="domain">Software Art</li><li class="domain">Generative Design</li><li class="domain">Creative Coding</li><li class="domain">Design Education</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/reas" title="Copy /reas">/reas</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+<article class="mind" data-zone="pedagogical" data-search="ge wang music programming languages &amp; interface design pedagogical everything built for people is an instrument, and an instrument teaches its player what is worth doing. time is the first-class material: whoever controls when things happen controls whether the result is musical. ge-wang music programming languages interaction design computer music design philosophy">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">🎻</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Ge Wang</h3>
+      <p class="mind-role">Music Programming Languages &amp; Interface Design · <span class="era">fl. 2003-</span></p>
+    </div>
+  </header>
+  <p class="lens">Everything built for people is an instrument, and an instrument teaches its player what is worth doing. Time is the first-class material: whoever controls when things happen controls whether the result is musical.</p>
+  <ul class="domains"><li class="domain">Music Programming Languages</li><li class="domain">Interaction Design</li><li class="domain">Computer Music</li><li class="domain">Design Philosophy</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/ge-wang" title="Copy /ge-wang">/ge-wang</button>
+    <span class="files" title="4 core documents, 0 supplementary">4/4</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="strategy">
+  <div class="zone-head">
+    <h2 class="zone-name">strategy</h2>
+    <p class="zone-blurb">Position, conflict and advantage</p>
+    <span class="zone-n">1</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="strategy" data-search="sun tzu military strategist &amp; philosopher strategy every situation is a conflict of positioning. map the terrain, know the adversary, exploit asymmetry. victory is determined before the engagement begins. sun-tzu military strategy philosophy leadership competitive intelligence">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">⚔️</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Sun Tzu</h3>
+      <p class="mind-role">Military Strategist &amp; Philosopher · <span class="era">544-496 BCE</span></p>
+    </div>
+  </header>
+  <p class="lens">Every situation is a conflict of positioning. Map the terrain, know the adversary, exploit asymmetry. Victory is determined before the engagement begins.</p>
+  <ul class="domains"><li class="domain">Military Strategy</li><li class="domain">Philosophy</li><li class="domain">Leadership</li><li class="domain">Competitive Intelligence</li></ul>
+  <footer class="mind-foot">
+    <button class="cmd" type="button" data-cmd="/sun-tzu" title="Copy /sun-tzu">/sun-tzu</button>
+    <span class="files" title="2 core documents, 0 supplementary">2/4</span>
+    
+  </footer>
+</article>
+  </div>
+</section>
+<section class="zone" data-zone="unzoned">
+  <div class="zone-head">
+    <h2 class="zone-name">unzoned</h2>
+    <p class="zone-blurb">Unassigned</p>
+    <span class="zone-n">4</span>
+  </div>
+  <div class="grid">
+<article class="mind" data-zone="" data-search="brian kernighan   everything is communication between humans. code is prose. programs are tools that compose. clarity beats cleverness. simplicity beats completeness. ">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">◆</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Brian Kernighan</h3>
+      <p class="mind-role"></p>
+    </div>
+  </header>
+  <p class="lens">Everything is communication between humans. Code is prose. Programs are tools that compose. Clarity beats cleverness. Simplicity beats completeness.</p>
+  <ul class="domains"></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="2 core documents, 2 supplementary">2/4 +2</span>
+    <span class="flag" title="Files on disk, no row in agents.db">unindexed</span>
+  </footer>
+</article>
+<article class="mind" data-zone="" data-search="dmitry likhachev   everything is cultural ecology. interconnected, fragile, irreplaceable. memory → conscience → morality → culture. seek the continuity between centuries. preserve first, innovate within continuity. ">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">◆</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Dmitry Likhachev</h3>
+      <p class="mind-role"></p>
+    </div>
+  </header>
+  <p class="lens">Everything is cultural ecology. Interconnected, fragile, irreplaceable. Memory → conscience → morality → culture. Seek the continuity between centuries. Preserve first, innovate within continuity.</p>
+  <ul class="domains"></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="2 core documents, 1 supplementary">2/4 +1</span>
+    <span class="flag" title="Files on disk, no row in agents.db">unindexed</span>
+  </footer>
+</article>
+<article class="mind" data-zone="" data-search="david blaine - activation protocol    ">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">◆</span>
+    <div class="mind-id">
+      <h3 class="mind-name">David Blaine - Activation Protocol</h3>
+      <p class="mind-role"></p>
+    </div>
+  </header>
+  
+  <ul class="domains"></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 0 supplementary">3/4</span>
+    <span class="flag" title="Files on disk, no row in agents.db">unindexed</span>
+  </footer>
+</article>
+<article class="mind" data-zone="" data-search="wim hof - activation protocol    ">
+  <header class="mind-head">
+    <span class="avatar" aria-hidden="true">◆</span>
+    <div class="mind-id">
+      <h3 class="mind-name">Wim Hof - Activation Protocol</h3>
+      <p class="mind-role"></p>
+    </div>
+  </header>
+  
+  <ul class="domains"></ul>
+  <footer class="mind-foot">
+    <span class="cmd cmd-none">no command</span>
+    <span class="files" title="3 core documents, 0 supplementary">3/4</span>
+    <span class="flag" title="Files on disk, no row in agents.db">unindexed</span>
+  </footer>
+</article>
+  </div>
+</section>
+<p class="empty" id="empty">No mind matches that.</p>
+</div></main>
+
+<footer class="foot"><div class="wrap">
+  Generated from minds/ and db/agents.db by scripts/build_minds_page.py · run it again after /induct
+</div></footer>
+
+<script>
+(function () {
+  var q = document.getElementById("q");
+  var reset = document.getElementById("reset");
+  var empty = document.getElementById("empty");
+  var chips = Array.prototype.slice.call(document.querySelectorAll(".chip"));
+  var cards = Array.prototype.slice.call(document.querySelectorAll(".mind"));
+  var zones = Array.prototype.slice.call(document.querySelectorAll(".zone"));
+  var active = null;
+
+  function apply() {
+    var term = q.value.trim().toLowerCase();
+    cards.forEach(function (c) {
+      var okZone = !active || c.dataset.zone === active;
+      var okTerm = !term || c.dataset.search.indexOf(term) !== -1;
+      c.hidden = !(okZone && okTerm);
+    });
+    var shown = 0;
+    zones.forEach(function (z) {
+      var n = z.querySelectorAll(".mind:not([hidden])").length;
+      z.hidden = n === 0;
+      shown += n;
+    });
+    empty.classList.toggle("on", shown === 0);
+  }
+
+  chips.forEach(function (chip) {
+    chip.setAttribute("aria-pressed", "false");
+    chip.addEventListener("click", function () {
+      active = active === chip.dataset.zone ? null : chip.dataset.zone;
+      chips.forEach(function (c) {
+        c.setAttribute("aria-pressed", String(c.dataset.zone === active));
+      });
+      apply();
+    });
+  });
+
+  q.addEventListener("input", apply);
+  reset.addEventListener("click", function () {
+    q.value = ""; active = null;
+    chips.forEach(function (c) { c.setAttribute("aria-pressed", "false"); });
+    apply(); q.focus();
+  });
+
+  document.addEventListener("click", function (ev) {
+    var btn = ev.target.closest ? ev.target.closest(".cmd[data-cmd]") : null;
+    if (!btn) return;
+    var text = btn.dataset.cmd;
+    function flash() {
+      var was = btn.textContent;
+      btn.textContent = "copied";
+      btn.classList.add("copied");
+      setTimeout(function () { btn.textContent = was; btn.classList.remove("copied"); }, 1100);
+    }
+    try {
+      navigator.clipboard.writeText(text).then(flash, select);
+    } catch (e) { select(); }
+    function select() {
+      var r = document.createRange();
+      r.selectNodeContents(btn);
+      var s = window.getSelection();
+      s.removeAllRanges(); s.addRange(r);
+    }
+  });
+})();
+</script>
+</body>
+</html>
