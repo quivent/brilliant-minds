@@ -62,6 +62,7 @@ No dependencies — the installer is POSIX shell. It is idempotent, so re-runnin
 | Package | `pkg/package.fs` + `root.txt` (so `db/agents.db` is found) | `$FIFTH_HOME/packages/brilliant-minds/` |
 | Commands | 67 slash commands, symlinked | `~/.claude/commands/` |
 | Hooks | `SessionStart`, `PreToolUse`, `PreCompact`, `SessionEnd` | `~/.claude/settings.json` |
+| Agent hook | built for the host if the prebuilt binary is for another platform | `hooks/agent-sqlite-<os>-<arch>` |
 | Python | `anthropic`, `pyyaml` (`--with-python`) | `.venv/` |
 
 Existing settings are backed up to `~/.claude/backups/` and only the `hooks` block and
@@ -90,12 +91,11 @@ cd fifth/engine && make && cd ..
 
 With Fifth installed, `make install-fifth` runs the equivalent `install.fs`; on aarch64, `make install-asm` runs the equivalent `install.s` with no interpreter at all. Both register the package only — they do not install the commands or hooks.
 
-The `PreToolUse` agent hook ships as a prebuilt macOS arm64 binary. On other platforms, build it from source:
-
-```bash
-cd hooks/agent-precontext-sqlite && cargo build --release
-cp target/release/agent-precontext-sqlite ../agent-sqlite
-```
+The `PreToolUse` agent hook ships as a prebuilt macOS arm64 binary (`hooks/agent-sqlite`).
+On any other host, `install.sh` builds it from `hooks/agent-precontext-sqlite/` into
+`hooks/agent-sqlite-<os>-<arch>` and points the hook there, so one checkout can serve
+several platforms. That needs `cargo` and a C compiler; without them the hook is skipped
+with a note and everything else still installs.
 
 
 ---

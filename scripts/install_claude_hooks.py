@@ -5,8 +5,9 @@ Called by install.sh. Idempotent: re-running adds nothing new.
 Only the "hooks" block and env.BRILLIANT_MINDS_ROOT are touched - the user's
 own settings (theme, tui, plugins, ...) are left exactly as they were.
 
-Hooks whose command cannot run on this machine (wrong-architecture binaries)
-are skipped and reported instead of being written into settings.
+A hook whose command cannot run on this machine (a wrong-architecture binary)
+is retargeted to a host-specific build next to it - agent-sqlite-linux-x86_64
+for agent-sqlite - and skipped with a note only when no such build exists.
 """
 
 import json
@@ -40,6 +41,29 @@ def runnable(cmd: str, root: Path) -> tuple[bool, str]:
     if magic in (b"\xcf\xfa\xed\xfe", b"\xce\xfa\xed\xfe", b"\xca\xfe\xba\xbe"):
         return (True, "") if system == "Darwin" else (False, f"macOS binary on {system}")
     return True, ""
+
+
+def host_suffix() -> str:
+    return f"{platform.system().lower()}-{platform.machine()}"
+
+
+def resolve(cmd: str, root: Path) -> tuple[str | None, str]:
+    """Return a runnable form of this hook command, or None with a reason.
+
+    A command whose binary was built for another platform is retargeted to a
+    sibling named <binary>-<os>-<arch> when one exists, so a repo can carry
+    builds for several hosts without the hook path changing per machine.
+    """
+    ok, why = runnable(cmd, root)
+    if ok:
+        return cmd, ""
+
+    head, _, tail = cmd.partition(" ")
+    for candidate in (f"{head}-{host_suffix()}", f"{head}-{platform.system().lower()}"):
+        ok, _ = runnable(candidate, root)
+        if ok:
+            return (candidate + (" " + tail if tail else "")), ""
+    return None, why
 
 
 def merge_event(existing: list, incoming: list) -> int:
@@ -99,13 +123,17 @@ def main() -> int:
         for group in groups:
             keep = []
             for hook in group.get("hooks", []):
-                ok, why = runnable(hook.get("command", ""), root)
-                (keep if ok else unusable).append(hook if ok else (hook, why))
+                command, why = resolve(hook.get("command", ""), root)
+                if command is None:
+                    unusable.append((hook, why))
+                else:
+                    keep.append({**hook, "command": command})
             if keep:
                 usable.append({**{k: v for k, v in group.items() if k != "hooks"}, "hooks": keep})
         for hook, why in unusable:
             name = Path(hook["command"].split()[0]).name
             print(f"{YELLOW}  ! skipped {event}/{name} — {why}{RESET}")
+            print(f"{DIM}    build one as hooks/{name}-{host_suffix()} to enable it{RESET}")
             skipped += 1
         if usable:
             added += merge_event(hooks.setdefault(event, []), usable)

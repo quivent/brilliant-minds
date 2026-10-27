@@ -6,3 +6,7 @@ __pycache__/
 
 
 .venv/
+
+# host-specific hook builds (produced by install.sh)
+hooks/agent-sqlite-*
+hooks/agent-precontext-sqlite/target/

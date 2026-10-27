@@ -109,6 +109,24 @@ fi
 # 3. Hooks
 # ------------------------------------------------------------------
 if [ "$do_hooks" -eq 1 ]; then
+  # The agent hook ships prebuilt for macOS arm64. On any other host, build it
+  # from hooks/agent-precontext-sqlite/ into a host-suffixed name, which
+  # install_claude_hooks.py then picks up. Needs cargo and a C compiler.
+  host_bin="agent-sqlite-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)"
+  if [ ! -x "$ROOT/hooks/$host_bin" ] && [ "$(uname -s)-$(uname -m)" != "Darwin-arm64" ]; then
+    CARGO=$(command -v cargo || echo "$HOME/.cargo/bin/cargo")
+    if [ -x "$CARGO" ]; then
+      dim "  building $host_bin …"
+      if (cd "$ROOT/hooks/agent-precontext-sqlite" && "$CARGO" build --release --quiet); then
+        cp "$ROOT/hooks/agent-precontext-sqlite/target/release/agent-precontext-sqlite" \
+           "$ROOT/hooks/$host_bin"
+        green "✓ built hooks/$host_bin"
+      else
+        echo "  ! agent hook build failed — continuing without it" >&2
+      fi
+    fi
+  fi
+
   if command -v python3 >/dev/null 2>&1; then
     python3 "$ROOT/scripts/install_claude_hooks.py" "$ROOT" "$CLAUDE_HOME"
   else
