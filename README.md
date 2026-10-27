@@ -48,24 +48,55 @@
 
 ## 📦 Installation
 
-### 1. Install Fifth
+```bash
+git clone git@github.com:quivent/brilliant-minds.git
+cd brilliant-minds
+make install                    # or: ./install.sh
+./install.sh --with-python      # optionally add the Python API venv
+```
+
+No dependencies — the installer is POSIX shell. It is idempotent, so re-running it is safe.
+
+| Step | Installs | Where |
+|------|----------|-------|
+| Package | `pkg/package.fs` + `root.txt` (so `db/agents.db` is found) | `$FIFTH_HOME/packages/brilliant-minds/` |
+| Commands | 67 slash commands, symlinked | `~/.claude/commands/` |
+| Hooks | `SessionStart`, `PreToolUse`, `PreCompact`, `SessionEnd` | `~/.claude/settings.json` |
+| Python | `anthropic`, `pyyaml` (`--with-python`) | `.venv/` |
+
+Existing settings are backed up to `~/.claude/backups/` and only the `hooks` block and
+`env.BRILLIANT_MINDS_ROOT` are modified. Hooks that cannot run on the host — such as the
+prebuilt macOS `agent-sqlite` binary on Linux — are reported and skipped. A command file
+already present under `~/.claude/commands/` is never overwritten.
+
+```bash
+./install.sh --package-only     # just the Fifth package (old install.fs behaviour)
+./install.sh --no-hooks         # commands only
+./install.sh --uninstall        # remove symlinks and the package
+```
+
+> [!NOTE]
+> Set `BRILLIANT_MINDS_ROOT` to override the recorded repo path, `FIFTH_HOME` to move the
+> package directory, or `CLAUDE_CONFIG_DIR` to target a different Claude Code config.
+
+### Optional: Fifth
+
+The [Fifth](https://github.com/quivent/fifth) interpreter is only needed for the Fifth API (`pkg:brilliant-minds`, `minds/loader.fs`). The Claude Code commands and the Python API work without it.
 
 ```bash
 git clone git@github.com:quivent/fifth.git
 cd fifth/engine && make && cd ..
-./engine/fifth install.fs
 ```
 
-### 2. Install Brilliant Minds
+With Fifth installed, `make install-fifth` runs the equivalent `install.fs`; on aarch64, `make install-asm` runs the equivalent `install.s` with no interpreter at all. Both register the package only — they do not install the commands or hooks.
+
+The `PreToolUse` agent hook ships as a prebuilt macOS arm64 binary. On other platforms, build it from source:
 
 ```bash
-git clone git@github.com:quivent/brilliant-minds.git
-cd brilliant-minds
-fifth install.fs
+cd hooks/agent-precontext-sqlite && cargo build --release
+cp target/release/agent-precontext-sqlite ../agent-sqlite
 ```
 
-> [!NOTE]
-> This copies the package into `~/.fifth/packages/brilliant-minds/` and records the install path so Fifth can find `agents.db` automatically. Optionally set `BRILLIANT_MINDS_ROOT` to override the install path.
 
 ---
 

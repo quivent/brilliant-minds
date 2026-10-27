@@ -6,7 +6,27 @@ PROJECT_NAME=$(basename "$CWD")
 
 # Check if current project is encoded
 BRILLIANT_MINDS_ROOT="${BRILLIANT_MINDS_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
-ENCODED=$(sqlite3 "$BRILLIANT_MINDS_ROOT/db/projects.db" "SELECT name, domain, sensitivity FROM projects WHERE path = '$CWD';" 2>/dev/null)
+# Query projects.db via the sqlite3 CLI, falling back to python3's sqlite3 module
+query_projects() {
+    local db="$1" path="$2"
+    if command -v sqlite3 >/dev/null 2>&1; then
+        sqlite3 "$db" "SELECT name, domain, sensitivity FROM projects WHERE path = '$path';" 2>/dev/null
+    elif command -v python3 >/dev/null 2>&1; then
+        python3 -c '
+import sqlite3, sys
+try:
+    con = sqlite3.connect(f"file:{sys.argv[1]}?mode=ro", uri=True)
+    rows = con.execute(
+        "SELECT name, domain, sensitivity FROM projects WHERE path = ?", (sys.argv[2],)
+    ).fetchall()
+except Exception:
+    sys.exit(0)
+print("\n".join("|".join("" if c is None else str(c) for c in r) for r in rows))
+' "$db" "$path" 2>/dev/null
+    fi
+}
+
+ENCODED=$(query_projects "$BRILLIANT_MINDS_ROOT/db/projects.db" "$CWD")
 
 cat << EOF
 <session-context>
